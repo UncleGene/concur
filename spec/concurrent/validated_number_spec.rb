@@ -5,7 +5,7 @@ describe ValidatedNumber do
     ValidatedNumber.delete_all
   end
 
-  it 'should have unique valies' do
+  it 'should have unique values' do
     concurrently do
       ValidatedNumber.create(:value => ValidatedNumber.count)
     end

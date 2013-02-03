@@ -4,8 +4,11 @@ describe ConstrainedNumber do
   after :each do
     ConstrainedNumber.delete_all
   end
+  before :each do
+    ConstrainedNumber.delete_all
+  end
 
-  it 'should have unique valies' do
+  it 'should have unique values' do
     concurrently do
       ConstrainedNumber.create(:value => ConstrainedNumber.count)
     end

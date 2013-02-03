@@ -9,14 +9,12 @@
 # And be sure to use new-style password hashing:
 #   http://dev.mysql.com/doc/refman/5.0/en/old-client.html
 development:
-  adapter: mysql2
-  encoding: utf8
-  reconnect: false
+  adapter: postgresql
+  encoding: unicode
   database: concur_development
   pool: 5
-  username: root
-  password: RooT
-  socket: /tmp/mysql.sock
+  username: eugeneka
+  password: 
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -27,8 +25,8 @@ test:
   reconnect: false
   database: concur_test
   pool: 5
-  username: root
-  password: RooT
+  username: test
+  password: test
   socket: /tmp/mysql.sock
 
 production:
@@ -37,6 +35,6 @@ production:
   reconnect: false
   database: concur_production
   pool: 5
-  username: root
-  password:
+  username: ENV['CONCUR_USER']
+  password: ENV['CONCUR_PASS']
   socket: /tmp/mysql.sock

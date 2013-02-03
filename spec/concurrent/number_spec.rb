@@ -4,8 +4,11 @@ describe Number do
   after :each do
     Number.delete_all
   end
+  before :each do
+    Number.delete_all
+  end
 
-  it 'should have unique valies' do
+  it 'should have unique values' do
     concurrently do
       Number.find_or_create_by_value(Number.count)
     end

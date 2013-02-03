@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130202194434) do
+ActiveRecord::Schema.define(:version => 20130202212029) do
 
   create_table "constrained_numbers", :force => true do |t|
     t.integer "value"
@@ -23,10 +23,11 @@ ActiveRecord::Schema.define(:version => 20130202194434) do
     t.integer "value"
   end
 
-  create_table "process_nums", :force => true do |t|
-    t.integer "pid"
-    t.integer "number"
+  create_table "safe_numbers", :force => true do |t|
+    t.integer "value"
   end
+
+  add_index "safe_numbers", ["value"], :name => "index_safe_numbers_on_value", :unique => true
 
   create_table "validated_numbers", :force => true do |t|
     t.integer "value"

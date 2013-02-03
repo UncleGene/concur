@@ -9,6 +9,6 @@ Concur::Application.load_tasks
 Rake::TestTask.new(:spec) do |t|
   t.libs << 'lib'
   t.libs << 'spec'
-  t.pattern = "spec/**/#{ARGV[1] || '*'}_spec.rb"
+  t.pattern = "spec/**/#{ENV['for'] || '*'}_spec.rb"
   t.verbose = true
 end
