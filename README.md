@@ -1,4 +1,4 @@
-= Rails vs Real Life
+# Rails vs Real Life
 
 Rails is omakase. Important thing that restaurant owners forgot to include in the menu was a disclaimer:
 "The consumption of raw or undercooked meats or eggs can be harmful to your health". We will look at some dishes
