@@ -1,24 +1,24 @@
-#ENV["RAILS_ENV"] = "test"
+ENV['RAILS_ENV'] ||= "ptest"
+puts  "Starting in #{ENV['RAILS_ENV']} environment"
 require File.expand_path('../../config/environment', __FILE__)
 require 'minitest/autorun'
 
 class MiniTest::Spec
-  def concurrently klass = ActiveRecord::Base, processes = 10, repeat = 20
-    klass.remove_connection
+  def concurrently processes = 10, repeat = 20
+    ActiveRecord::Base.remove_connection
     processes.times do
       fork do
         begin
-          klass.establish_connection
+          ActiveRecord::Base.establish_connection
           repeat.times do
             yield
           end
         ensure
-          klass.remove_connection
+          ActiveRecord::Base.remove_connection
         end
       end
     end
-    Process.wait
-    sleep 0.5 # wait a little more for db to process all requests ???
-    klass.establish_connection
+    Process.waitall
+    ActiveRecord::Base.establish_connection
   end
 end
