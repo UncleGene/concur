@@ -10,9 +10,10 @@ describe ConstrainedNumber do
 
   it 'should have unique values' do
     concurrently do
-      ConstrainedNumber.create(:value => ConstrainedNumber.count)
+      20.times{ ConstrainedNumber.create(:value => ConstrainedNumber.count) }
     end
 
     ConstrainedNumber.count.must_equal ConstrainedNumber.select('distinct value').count
   end
+
 end

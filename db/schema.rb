@@ -11,13 +11,24 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130202212029) do
+ActiveRecord::Schema.define(:version => 20130205181318) do
 
   create_table "constrained_numbers", :force => true do |t|
     t.integer "value"
   end
 
   add_index "constrained_numbers", ["value"], :name => "index_constrained_numbers_on_value", :unique => true
+
+  create_table "dogs", :force => true do |t|
+  end
+
+  create_table "heads", :force => true do |t|
+    t.integer "dog_id"
+  end
+
+  create_table "legs", :force => true do |t|
+    t.integer "dog_id"
+  end
 
   create_table "numbers", :force => true do |t|
     t.integer "value"

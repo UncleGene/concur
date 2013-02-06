@@ -10,7 +10,7 @@ describe Number do
 
   it 'should have unique values' do
     concurrently do
-      Number.find_or_create_by_value(Number.count)
+      20.times{ Number.find_or_create_by_value(Number.count) }
     end
 
     Number.count.must_equal Number.select('distinct value').count

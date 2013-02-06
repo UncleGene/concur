@@ -16,30 +16,8 @@ The first dish server raw on our menu - uniquiness
 
 ### Uniquiness
 
-To be able to simulate multi-process environment in your tests, let add a simple method to [your favorite test
-framework]. In this example we will be using MiniTest::Spec
+How to add milti-process testing
 
-    class MiniTest::Spec
-      def concurrently processes = 10, repeat = 20
-        ActiveRecord::Base.remove_connection
-        processes.times do
-          fork do
-            begin
-              ActiveRecord::Base.establish_connection
-              repeat.times do
-                yield
-              end
-            ensure
-              ActiveRecord::Base.remove_connection
-            end
-          end
-        end
-        Process.waitall
-        ActiveRecord::Base.establish_connection
-      end
-    end
-
-#### find_or_create_by
 One of simplest approaches (working perfectly in single process environment) is to force uniquiness by contract.
 ActiveRecord method find_or_create_by_ does not produce duplicate records - it creates a new record only if one with
 provided value is not found.
@@ -47,10 +25,9 @@ provided value is not found.
 #### validates :uniquiness => true
 #### DB constraints
 #### Workaround
-#### Migrations
+### Deployments
+### Migrations
 
 ## Security
-
 ### XSRF
 
-## Raw Food From Guest Chefs - Database Migrations

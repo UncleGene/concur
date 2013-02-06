@@ -4,21 +4,22 @@ require File.expand_path('../../config/environment', __FILE__)
 require 'minitest/autorun'
 
 class MiniTest::Spec
-  def concurrently processes = 10, repeat = 20
+  def concurrently processes = 10
     ActiveRecord::Base.remove_connection
     processes.times do
       fork do
         begin
           ActiveRecord::Base.establish_connection
-          repeat.times do
-            yield
-          end
+          yield
+        rescue => e
+          puts e#.class.name
+          exit 1
         ensure
           ActiveRecord::Base.remove_connection
         end
       end
     end
-    Process.waitall
     ActiveRecord::Base.establish_connection
+    assert Process.waitall.map(&:last).all?(&:success?), "K-Boom"
   end
 end
