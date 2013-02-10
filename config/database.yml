@@ -8,20 +8,20 @@
 #
 # And be sure to use new-style password hashing:
 #   http://dev.mysql.com/doc/refman/5.0/en/old-client.html
-ptest:
+test:
   adapter: postgresql
   encoding: unicode
   database: concur_test
-  pool: 2
+  pool: 1
   username: eugeneka
   password: 
 
-test:
+mtest:
   adapter: mysql2
   encoding: utf8
   reconnect: false
   database: concur_test
-  pool: 2
+  pool: 1
   username: test
   password: test
   socket: /tmp/mysql.sock
@@ -30,7 +30,7 @@ development:
   adapter: postgresql
   encoding: unicode
   database: concur_development
-  pool: 2
+  pool: 1
   username: eugeneka
   password:
 
@@ -39,7 +39,7 @@ production:
   encoding: utf8
   reconnect: false
   database: concur_production
-  pool: 2
+  pool: 1
   username:
   password:
   socket: /tmp/mysql.sock

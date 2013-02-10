@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130205181318) do
+ActiveRecord::Schema.define(:version => 20130210195738) do
 
   create_table "constrained_numbers", :force => true do |t|
     t.integer "value"
@@ -30,8 +30,19 @@ ActiveRecord::Schema.define(:version => 20130205181318) do
     t.integer "dog_id"
   end
 
+  create_table "mysql_safe_numbers", :force => true do |t|
+    t.integer "value"
+  end
+
+  add_index "mysql_safe_numbers", ["value"], :name => "index_mysql_safe_numbers_on_value", :unique => true
+
   create_table "numbers", :force => true do |t|
     t.integer "value"
+  end
+
+  create_table "process_nums", :force => true do |t|
+    t.integer "pid"
+    t.integer "number"
   end
 
   create_table "safe_numbers", :force => true do |t|

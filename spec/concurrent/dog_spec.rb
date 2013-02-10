@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Number do
+describe Dog do
   after :each do
     [Leg, Head, Dog].each(&:delete_all)
   end
@@ -19,10 +19,7 @@ describe Number do
       end while headless || legless
     end
 
-    Dog.all.group_by do |dog|
-      [ Head.where(:dog_id => dog.id).count,
-        dog.legs.count ]
-    end.
+    Dog.all.group_by{ |dog| [ Head.where(:dog_id => dog.id).count, dog.legs.count ] }.
         map{ |k, v| [k[0], k[1], v.size] }.
         sort_by(&:last).
         reverse.
