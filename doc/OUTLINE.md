@@ -26,8 +26,8 @@ provided value is not found.
 #### DB constraints
 #### Workaround
 ### Deployments
+#### Asset pipeline
 ### Migrations
-
 ## Security
 ### XSRF
 

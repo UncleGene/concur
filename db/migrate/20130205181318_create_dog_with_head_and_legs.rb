@@ -3,11 +3,11 @@ class CreateDogWithHeadAndLegs < ActiveRecord::Migration
     create_table :dogs
 
     create_table :heads do |t|
-      t.integer :dog_id
+      t.references :dog
     end
-  end
 
-  create_table :legs do |t|
-    t.integer :dog_id
+    create_table :legs do |t|
+      t.references :dog
+    end
   end
 end

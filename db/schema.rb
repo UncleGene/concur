@@ -40,11 +40,6 @@ ActiveRecord::Schema.define(:version => 20130210195738) do
     t.integer "value"
   end
 
-  create_table "process_nums", :force => true do |t|
-    t.integer "pid"
-    t.integer "number"
-  end
-
   create_table "safe_numbers", :force => true do |t|
     t.integer "value"
   end

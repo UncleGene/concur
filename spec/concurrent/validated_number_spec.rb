@@ -7,9 +7,9 @@ describe ValidatedNumber do
 
   it 'should have unique values' do
     concurrently do
-      20.times{ ValidatedNumber.create(:value => ValidatedNumber.count) }
+      10.times{ ValidatedNumber.create(:value => ValidatedNumber.count) }
     end
 
-    ValidatedNumber.count.must_equal ValidatedNumber.select('distinct value').count
+    ValidatedNumber.count.must_equal ValidatedNumber.select(:value).uniq.count
   end
 end

@@ -11,7 +11,7 @@ describe SafeNumber do
         raise "Invalid record" if SafeNumber.find_or_create(SafeNumber.count).new_record?
       end
     end
-    SafeNumber.count.must_equal SafeNumber.select('distinct value').count
+    SafeNumber.count.must_equal SafeNumber.select(:value).uniq.count
   end
 
 end

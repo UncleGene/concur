@@ -10,9 +10,9 @@ describe Number do
 
   it 'should have unique values' do
     concurrently do
-      20.times{ Number.find_or_create_by_value(Number.count) }
+      10.times{ Number.find_or_create_by_value(Number.count) }
     end
 
-    Number.count.must_equal Number.select('distinct value').count
+    Number.count.must_equal Number.select(:value).uniq.count
   end
 end
