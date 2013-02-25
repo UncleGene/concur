@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130210195738) do
+ActiveRecord::Schema.define(:version => 20130225021040) do
 
   create_table "constrained_numbers", :force => true do |t|
     t.integer "value"
@@ -20,6 +20,11 @@ ActiveRecord::Schema.define(:version => 20130210195738) do
   add_index "constrained_numbers", ["value"], :name => "index_constrained_numbers_on_value", :unique => true
 
   create_table "dogs", :force => true do |t|
+  end
+
+  create_table "extra_columns", :force => true do |t|
+    t.integer "value"
+    t.string  "extra"
   end
 
   create_table "heads", :force => true do |t|
