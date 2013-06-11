@@ -7,3 +7,5 @@ cooking these dishes yourself.
 
 This rails application is created as a sandbox for an extra-raw dishes exposure. It will cover some issues of
 concurrency, security and safe database operations.
+
+{Safe#create}
