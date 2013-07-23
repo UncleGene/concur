@@ -14,7 +14,7 @@ describe ConstrainedNumber do
         ConstrainedNumber.find_or_create_by_value(ConstrainedNumber.count)
       end
     end
-    unique = ConstrainedNumber.select(:value).uniq.count
+    unique = ConstrainedNumber.select('distict value').count
     ConstrainedNumber.count.must_equal unique
   end
 

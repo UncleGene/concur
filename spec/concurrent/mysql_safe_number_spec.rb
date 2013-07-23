@@ -11,7 +11,7 @@ describe MysqlSafeNumber do
         raise "Invalid record" if MysqlSafeNumber.find_or_create(MysqlSafeNumber.count).new_record?
       end
     end
-    MysqlSafeNumber.count.must_equal MysqlSafeNumber.select(:value).uniq.count
+    MysqlSafeNumber.count.must_equal MysqlSafeNumber.select('distinct value').count
   end
 
 end

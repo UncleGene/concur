@@ -10,6 +10,6 @@ describe ValidatedNumber do
       10.times{ ValidatedNumber.create(:value => ValidatedNumber.count) }
     end
 
-    ValidatedNumber.count.must_equal ValidatedNumber.select(:value).uniq.count
+    ValidatedNumber.count.must_equal ValidatedNumber.select('distinct value').count
   end
 end

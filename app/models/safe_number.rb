@@ -1,9 +1,8 @@
 class SafeNumber < ActiveRecord::Base
-
-  def self.find_or_create(value)
-    find_or_create_by_value(value)
+  def self.find_or_create(val)
+    where(value: val).
+      first_or_create{ |r| r.value = val }
   rescue ActiveRecord::RecordNotUnique
-    find_by_value(value)
+    retry
   end
-
 end

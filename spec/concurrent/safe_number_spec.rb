@@ -8,10 +8,10 @@ describe SafeNumber do
   it 'should have unique values for find_or_create' do
     concurrently 20 do
       50.times do 
-        raise "Invalid record" if SafeNumber.find_or_create(SafeNumber.count).new_record?
+        SafeNumber.find_or_create(SafeNumber.count)
       end
     end
-    SafeNumber.count.must_equal SafeNumber.select(:value).uniq.count
+    SafeNumber.count.must_equal SafeNumber.select('distinct value').count
   end
 
 end
