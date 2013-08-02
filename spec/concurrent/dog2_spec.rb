@@ -10,12 +10,18 @@ describe Dog do
 
   it 'dog should be normal' do
     50.times{ Dog.create }
-    concurrently do
+    concurrently 20 do
       begin
         headless = Dog.all.reject(&:head).first
-        headless && headless.create_head
+        headless && Dog.transaction do
+          headless.lock!
+          headless.create_head
+        end
         legless = Dog.all.select{|d| d.legs.empty?}.first
-        legless && legless.legs = 4.times.map{ Leg.create }
+        legless && Dog.transaction do
+          legless.lock!
+          legless.legs = 4.times.map{ Leg.create }
+        end
       end while headless || legless
     end
 
