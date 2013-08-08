@@ -9,18 +9,17 @@ describe Dog do
   end
 
   it 'dog should be normal' do
-    200.times{ Dog.create }
+    500.times{ Dog.create }
     concurrently 20 do
       begin
-        headless = Dog.includes(:head).reject(&:head).first
-        headless && Dog.transaction do
-          headless.lock!
-          headless.create_head
+        headless, legless = nil, nil
+        Dog.transaction do
+          headless = Dog.lock.includes(:head).reject(&:head).first
+          headless && headless.create_head
         end
-        legless = Dog.includes(:legs).select{|d| d.legs.empty?}.first
-        legless && Dog.transaction do
-          legless.lock!
-          legless.legs = 4.times.map{ Leg.create }
+        Dog.transaction do
+          legless = Dog.lock.includes(:legs).select{|d| d.legs.empty?}.first
+          legless && legless.legs = 4.times.map{ Leg.create }
         end
       end while headless || legless
     end

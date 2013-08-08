@@ -10,9 +10,9 @@ describe Dog do
 
   it 'dog should be normal' do
     200.times{ Dog.create }
-    concurrently do
+    concurrently 20 do
       begin
-        headless = Dog.all.reject(&:head).first
+        headless = Dog.includes(:head).reject(&:head).first
         if headless
           headless.create_head
           Head.update_all( {
@@ -21,11 +21,12 @@ describe Dog do
               :id => Head.
                 where(:dog_id => headless.id).
                 order(:id).
-                pluck(:id)[0..-2]
+                pluck(:id)[0..-2],
+              :dog_id => headless.id
             })
         end
 
-        legless = Dog.all.select{|d| d.legs.empty?}.first
+        legless = Dog.includes(:legs).select{|d| d.legs.empty?}.first
         if legless
           legless.legs = 4.times.map{ Leg.create }
           Leg.update_all( {
@@ -34,7 +35,8 @@ describe Dog do
               :id => Leg.
                 where(:dog_id => legless.id).
                 order(:id).
-                pluck(:id)[0..-5]
+                pluck(:id)[0..-5],
+              :dog_id => legless.id
             })          
         end
       end while headless || legless
@@ -46,7 +48,7 @@ describe Dog do
         reverse.
         map{ |(heads, legs, count)| "#{pz(count, 'dog')} with #{pz(heads, 'head')} and #{pz(legs, 'leg')}"}.
         join(', ').
-        must_equal "50 dogs with 1 head and 4 legs"
+        must_equal "200 dogs with 1 head and 4 legs"
   end
 
   def pz(n, str)

@@ -12,9 +12,9 @@ describe Dog do
     50.times{ Dog.create }
     concurrently do
       begin
-        headless = Dog.all.reject(&:head).first
+        headless = Dog.includes(:head).reject(&:head).first
         headless && headless.create_head
-        legless = Dog.all.select{|d| d.legs.empty?}.first
+        legless = Dog.includes(:legs).select{|d| d.legs.empty?}.first
         legless && legless.legs = 4.times.map{ Leg.create }
       end while headless || legless
     end
