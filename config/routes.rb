@@ -1,12 +1,4 @@
 Concur::Application.routes.draw do
-  get "number/view"
-
-  match "number/vote"
-
-  put "number/vote_more"
-
-  put "number/do_vote"
-
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

@@ -5,6 +5,7 @@
 #   git config --global core.excludesfile ~/.gitignore_global
 
 Gemfile.lock
+.DS_Store
 /db/schema.rb
 
 # Ignore bundler config
