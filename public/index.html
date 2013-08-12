@@ -36,7 +36,7 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 
-<!-- ----------------------------------------- --><section>
+<!-- title --><section>
 
 <h2>Rails: Shadow Facets of Concurrency</h2>
 
@@ -49,7 +49,8 @@
 </p>
 </small>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--   concurrency definitions --><section>
 
 con·cur·ren·cy
 <pre class="fragment">
@@ -70,7 +71,22 @@ con·cur·ren·cy
   <b>conflict, disagreement, dissensus</b>
 </pre>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--   vocabulary --><section>
+
+<h2>Vocabulary</h2>
+
+<ul>
+  <li class="fragment"><b>Concurrency</b>
+    <span class="fragment"> - Concurrency Problems [conflict, disagreement, dissensus]</span></li>
+  <li class="fragment"><b>WTH</b>
+    <span class="fragment"> - Why Things Happen</span></li>
+  <li class="fragment"><b>WTF</b>
+    <span class="fragment"> - Way[s] To Fix</span></li>
+</ul>
+
+</section>
+<!--   quiz --><section>
 
 <h3>
   You may not worry about concurrency if:
@@ -81,7 +97,8 @@ con·cur·ren·cy
   <li class="fragment">You have a very low traffic</li>
 </ul>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--     img: monorail --><section>
 
 <img src="images/SeattleMonorailAccident.jpg">
 <aside class="notes" data-markdown>
@@ -89,35 +106,41 @@ CC-BY-SA-2.5 Garrett Fitzgerald
 http://commons.wikimedia.org/wiki/File:SeattleMonorailAccident.jpg
 </aside>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--   About me --><section>
 
 <h2>About me:</h2>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--     AmazonKindle --><section>
 
 My first Rails site:
-<img src="images/AmazonKindle.png">
+<img src="images/AmazonKindle.jpg">
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--     AmazonStudios --><section>
 
 My second one:
-<img src="images/AmazonStudios.png">
+<img src="images/AmazonStudios.jpg">
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--       disclaimer --><section>
 
 <font color="red">&ldquo;</font>My<font color="red">&rdquo; - please pay attention to color ;-)</font>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--   Concurrency WTH --><section>
 
 <h2>Concurrency WTH</h2>
-<small>(Why Things Happen)</small>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--     development --><section>
 
 <h3>Development Environment</h3>
 <img class="small" src="images/box_one_rails_one_db.png">
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--     production --><section>
 
 <h3>Production Environment</h3>
 <img class="small" src="images/box_many_rails.png">
@@ -126,9 +149,10 @@ My second one:
 <img class="small" src="images/box_many_rails.png">
 <img class="small" src="images/box_many_rails.png">
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--     sources of concurrency --><section>
 
-<h3>Sources of Concurrency Problems</h3>
+<h3>Sources of Concurrency</h3>
 <ul>
   <li class="fragment">Shared resources
   <li class="fragment">Non-deterministic request processing
@@ -138,28 +162,39 @@ My second one:
   </ul>
 </ul>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!-- Part 1. Rails and Concurrency --><section>
 
 <h2>Part 1</h2>
 <h3>Rails and Concurrency</h3>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--     concurrent testing - abridged --><section>
 
 <h3>Concurrent Testing</h3>
-<pre class="fragment"><code data-trim>def concurrently processes = 10
-    processes.times do
-      fork do
-        yield
-      end
+<div class="fragment">
+    database.yml:
+    <pre><code>test:
+  adapter: postgresql  # mysql2
+  database: concur_test</code></pre>
+</div>
+<div class="fragment">
+  test_helper.rb (spec_helper.rb):
+  <pre><code class="ruby">def concurrently processes = 10
+  processes.times do
+    fork do
+      yield
     end
-    assert Process.waitall.map(&:last).all? &:success?
+  end
+  assert Process.waitall.map(&:last).all? &:success?
 end
-</code></pre>
-
-</section><!-- ----------------------------------------- --><section>
+  </code></pre>
+</div>
+</section>
+<!--     concurrent testing - complete --><section>
 
 <h3>Concurrent Testing</h3>
-<pre><code>def concurrently processes = 10
+<pre><code class="rub">def concurrently processes = 10
   ActiveRecord::Base.remove_connection
   processes.times do
     fork do
@@ -178,7 +213,7 @@ end
 end  
 </code></pre>
 
-<pre class="fragment subst"><code>def concurrently processes = 10
+<pre class="fragment subst"><code class="ruby">def concurrently processes = 10
   <em>ActiveRecord::Base.remove_connection</em>
   processes.times do
     fork do
@@ -197,7 +232,7 @@ end  
 end
 </code></pre>
 
-<pre class="fragment subst"><code>def concurrently processes = 10
+<pre class="fragment subst"><code class="ruby">def concurrently processes = 10
   ActiveRecord::Base.remove_connection
   processes.times do
     fork do
@@ -216,19 +251,32 @@ end
 end
 </code></pre>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--   WTH1: Unique --><section>
+
+<h2>WTH 1: One and Only</h2>
+<img src="images/unique_by_sorah42-d33i1bm.jpg">
+<aside class="notes">
+cc by-sa 3.0 SoRah42
+http://sorah42.deviantart.com/art/Unique-187278898
+</aside>
+
+
+</section>
+<!--     naive find_or_create --><section>
 
 <h2>find_or_create_by</h2>
-<pre class="fragment"><code>class Number < ActiveRecord::Base
+<pre class="fragment"><code class="ruby">class Number < ActiveRecord::Base
   # t.integer :value
 end   
 </code></pre>
 
-<pre class="fragment"><code>describe Number do
+<pre class="fragment"><code class="ruby">describe Number do
   it 'should have unique values' do
     concurrently do
       10.times do
-        Number.find_or_create_by_value Number.count
+        <em>Number.find_or_create_by_value Number.count</em>
+      end
     end
     unique = Number.select('distinct value').count
     Number.count.must_equal unique
@@ -236,13 +284,14 @@ end
 end
 </code></pre>
 
-<pre class="fragment"><code> 1) Failure:
+<pre class="fragment"><code class="no-highlight"> 1) Failure:
 test_0001_should_have_unique_values(Number) :
 Expected: 49
   Actual: 99
 </code></pre>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--       img: quake bent rails --><section>
 
 <img src="images/GuateQuake1976BentRailsA.jpg">
 <aside class="notes">
@@ -250,7 +299,8 @@ Public Domain
 http://commons.wikimedia.org/wiki/File:GuateQuake1976BentRailsA.jpg
 </aside>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--     find_or_create_by WTH --><section>
 
 <h2>find_or_create_by WTH</h2>
 
@@ -275,7 +325,8 @@ http://commons.wikimedia.org/wiki/File:GuateQuake1976BentRailsA.jpg
   <li class="fragment">Process 2: I am happy too, insert a new one!
 </ul>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--       img: train wreck --><section>
 
 <img src="images/Train_wreck_at_Montparnasse_1895.jpg">
 <aside class="notes">
@@ -283,7 +334,8 @@ PD
 http://en.wikipedia.org/wiki/File:Train_wreck_at_Montparnasse_1895.jpg
 </aside>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--     validates :uniquiness --><section>
 
 <h2>validates :uniquiness</h2>
 
@@ -305,7 +357,7 @@ end
 end
 </code></pre>
 
-<pre class="fragment"><code> 1) Failure:
+<pre class="fragment"><code class="no-highlight"> 1) Failure:
 test_0001_should_have_unique_values(ValidatedNumber):
 Expected: 37
   Actual: 96
@@ -318,7 +370,8 @@ Expected: 37
    (0.7ms)  COMMIT
 </code></pre>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--       img: overturned car --><section>
 
 <img src="images/5786322835_e6428d9059_b.jpg">
 <aside class="notes">
@@ -326,10 +379,10 @@ Courtesy of the Boston Public Library, Leslie Jones Collection
 http://www.flickr.com/photos/boston_public_library/5786322835/
 </aside>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--     add db constraint --><section>
 
 <h2>WTF uniquiness</h2>
-<small>(Way[s] To Fix)</small>
 
 <pre class="fragment"><code class="ruby">class CreateConstrainedNumbers < ActiveRecord::Migration
   def change
@@ -341,7 +394,7 @@ http://www.flickr.com/photos/boston_public_library/5786322835/
 end
 </code></pre>
 
-<pre class="fragment small"><code class="unknown"># Running tests:
+<pre class="fragment small"><code class="sql"># Running tests:
 
 ActiveRecord::RecordNotUnique: PG::Error: ERROR:  duplicate key value violates unique constraint "index_constrained_numbers_on_value"
 DETAIL:  Key (value)=(0) already exists.
@@ -360,7 +413,8 @@ DETAIL:  Key (value)=(0) already exists.
 : INSERT INTO "constrained_numbers" ("value") VALUES ($1) RETURNING "id"
 </code></pre>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--       img: train over wall --><section>
 
 <img src="images/2488898004_feb5bf9787_b.jpg">
 <aside class="notes">
@@ -368,7 +422,8 @@ CC BY-NC-ND 2.0 ATOMIC Hot Links
 http://www.flickr.com/photos/7552532@N07/2488898004/
 </aside>
 
-</section><!-- ----------------------------------------- --><section>
+</section>
+<!--     catch RecordNotFound --><section>
 
 <h2>WTF uniquiness #2</h2>
 
@@ -381,7 +436,7 @@ http://www.flickr.com/photos/7552532@N07/2488898004/
 end
 </code></pre>
 
-<pre class="fragment small"><code class="unknown"># Running tests:
+<pre class="fragment small"><code class="no-highlight"># Running tests:
 
 .
 
@@ -395,8 +450,528 @@ ActiveRecord::StatementInvalid: Mysql2::Error: Deadlock found when trying to get
 F
 </code></pre>
 
+</section>
+<!--       img: curved rails --><section>
 
-</section><!-- ----------------------------------------- -->
+<img src="images/4963981594_849491e7cc_o.jpg">
+<aside class="notes">
+CC BY-ND 2.0 Mike Campbell
+http://www.flickr.com/photos/morphyoss/4963981594/
+</aside>
+
+</section>
+<!--     MySQL uniquiness --><section>
+
+<h2>WTF uniquiness - MySQL</h2>
+
+<pre class="fragment"><code class="ruby">def self.extra_awesome_creation(val)
+    where(value: val).
+      first_or_create{ |r| r.value = val }
+  rescue ActiveRecord::RecordNotUnique
+    retry
+  rescue ActiveRecord::StatementInvalid => e
+    retry if e.message =~ /Deadlock/
+    # Thank you, MySQL and Mysql2!
+    raise
+  end
+</code></pre>
+
+<pre class="fragment small"><code class="no-highlight"># Running tests:
+
+.
+
+Finished tests in 3.234423s, 0.3092 tests/s, 0.6183 assertions/s.
+
+1 tests, 2 assertions, 0 failures, 0 errors, 0 skips
+</code></pre>
+
+</section>
+<!--       img: fast train --><section>
+
+<img src="images/fast_train.jpg">
+<aside class="notes">
+CC-BY-NC-ND 3.0 Swansea
+http://www.freefoto.com/download/23-22-1/Swansea-London-Paddington-High-Speed-Train--HST-
+</aside>
+
+</section>
+<!--   WTH 2: Assoiations --><section>
+
+<h2>WTH 2: I Can Has One or Many?</h2>
+
+</section>
+<!--     dog with had and legs --><section>
+
+<h2>Associations</h2>
+
+<pre class="fragment"><code class="ruby">class Dog < ActiveRecord::Base
+  has_one :head
+  has_many :legs
+end
+</code></pre>
+
+<pre class="fragment"><code class="ruby">class Head < ActiveRecord::Base
+  belongs_to :dog
+end
+
+class Leg < ActiveRecord::Base
+  belongs_to :dog
+end
+</code></pre>
+
+</section>
+<!--     dog creation code --><section>
+
+<h2>Let Make Some Dogs</h2>
+
+<pre><code class="ruby">20.times{ Dog.create }
+
+concurrently do
+  begin
+    headless = Dog.includes(:head).reject(&:head).first
+    headless && headless.create_head
+
+    legless = Dog.includes(:legs).select{|d| d.legs.empty?}.first
+    legless && legless.legs = 4.times.map{ Leg.create }
+  end while headless || legless
+end
+</code></pre>
+
+</section>
+<!--     many dogs with many heads --><section>
+
+<h2>And See What We Get</h2>
+
+<pre><code class="ruby">pretty_report(Dog.all).must_equal "20 dogs with 1 head and 4 legs"</code></pre>
+
+<pre class="fragment"><code class="no-highlight">--- expected
++++ actual
+@@ -1 +1 @@
+-"20 dogs with 1 head and 4 legs"
++"3 dogs with 1 head and 8 legs, 2 dogs with 2 heads and 28 legs, 2 dogs with 1 head and 12 legs, 1 dog with 1 head and 4 legs, 1 dog with 4 heads and 24 legs, 1 dog with 4 heads and 32 legs, 1 dog with 3 heads and 16 legs, 1 dog with 2 heads and 32 legs, 1 dog with 1 head and 16 legs, 1 dog with 6 heads and 8 legs, 1 dog with 1 head and 20 legs, 1 dog with 2 heads and 16 legs, 1 dog with 4 heads and 36 legs, 1 dog with 5 heads and 24 legs, 1 dog with 8 heads and 20 legs, 1 dog with 2 heads and 40 legs"
+</code></pre>
+
+</section>
+<!--       img: crash --><section>
+
+<img src="images/crash.jpg">
+<aside class="notes">
+PD
+http://commons.wikimedia.org/wiki/File:Loket_vid_j%C3%A4rnv%C3%A4gsolyckan_i_Get%C3%A5_1918.jpg
+</aside>
+
+</section>
+<!--     WTH heads --><section>
+
+<h2>WTH with Heads</h2>
+
+<pre class="fragment small"><code class="sql">> Dog.first.create_head
+  Dog Load (0.3ms)  SELECT "dogs".* FROM "dogs" LIMIT 1
+   (0.1ms)  BEGIN
+  SQL (12.0ms)  INSERT INTO "heads" ("dog_id") VALUES ($1) RETURNING "id"  [["dog_id", 1]]
+   (0.9ms)  COMMIT
+  Head Load (0.2ms)  SELECT "heads".* FROM "heads" WHERE "heads"."dog_id" = 1 LIMIT 1
+   (0.1ms)  BEGIN
+   (0.2ms)  UPDATE "heads" SET "dog_id" = NULL WHERE "heads"."id" = 1
+   (0.4ms)  COMMIT
+</code></pre>
+
+<pre class="fragment small subst"><code class="sql">> Dog.first.create_head
+  Dog Load (0.3ms)  SELECT "dogs".* FROM "dogs" LIMIT 1
+   (0.1ms)  BEGIN
+  SQL (12.0ms)  INSERT INTO "heads" ("dog_id") VALUES ($1) RETURNING "id"  [["dog_id", 1]]
+   (0.9ms)  COMMIT
+  Head Load (0.2ms)  <em>SELECT "heads".* FROM "heads" WHERE "heads"."dog_id" = 1 LIMIT 1</em>
+   (0.1ms)  BEGIN
+   (0.2ms)  UPDATE "heads" SET "dog_id" = NULL WHERE "heads"."id" = 1
+   (0.4ms)  COMMIT
+</code></pre>
+
+</section>
+<!--       img: many heads --><section>
+<img src="images/three_heads.jpg">
+
+</section>
+<!--     WTH legs --><section>
+
+<h2>WTH with Legs</h2>
+
+<pre class="fragment small"><code class="sql">>   Dog.first.legs = Leg.all.sample(4)
+  Dog Load (0.3ms)  SELECT "dogs".* FROM "dogs" LIMIT 1
+  Leg Load (0.2ms)  SELECT "legs".* FROM "legs"
+  Leg Load (0.3ms)  SELECT "legs".* FROM "legs" WHERE "legs"."dog_id" = 1
+   (0.1ms)  BEGIN
+   (0.2ms)  UPDATE "legs" SET "dog_id" = 1 WHERE "legs"."id" = 6
+   (0.2ms)  UPDATE "legs" SET "dog_id" = 1 WHERE "legs"."id" = 3
+   (0.2ms)  UPDATE "legs" SET "dog_id" = 1 WHERE "legs"."id" = 10
+   (0.1ms)  UPDATE "legs" SET "dog_id" = 1 WHERE "legs"."id" = 5
+   (0.5ms)  COMMIT
+</code></pre>
+
+<pre class="fragment small"><code class="sql">> Dog.first.legs = Leg.all.sample(4)
+  Dog Load (0.4ms)  SELECT "dogs".* FROM "dogs" LIMIT 1
+  Leg Load (0.3ms)  SELECT "legs".* FROM "legs"
+  Leg Load (0.3ms)  SELECT "legs".* FROM "legs" WHERE "legs"."dog_id" = 1
+   (0.1ms)  BEGIN
+  SQL (0.3ms)  UPDATE "legs" SET "dog_id" = NULL WHERE "legs"."dog_id" = 1 AND "legs"."id" IN (10, 5)
+   (0.2ms)  <em>UPDATE "legs" SET "dog_id" = 1 WHERE "legs"."id" = 2</em>
+   (0.2ms)  <em>UPDATE "legs" SET "dog_id" = 1 WHERE "legs"."id" = 9</em>
+   (0.6ms)  COMMIT
+</code></pre>
+
+<pre class="fragment small subst"><code class="sql">> Dog.first.legs = Leg.all.sample(4)
+  Dog Load (0.4ms)  SELECT "dogs".* FROM "dogs" LIMIT 1
+  Leg Load (0.3ms)  SELECT "legs".* FROM "legs"
+  Leg Load (0.3ms)  <em>SELECT "legs".* FROM "legs" WHERE "legs"."dog_id" = 1</em>
+   (0.1ms)  BEGIN
+  SQL (0.3ms)  UPDATE "legs" SET "dog_id" = NULL WHERE "legs"."dog_id" = 1 AND "legs"."id" IN (10, 5)
+   (0.2ms)  UPDATE "legs" SET "dog_id" = 1 WHERE "legs"."id" = 2
+   (0.2ms)  UPDATE "legs" SET "dog_id" = 1 WHERE "legs"."id" = 9
+   (0.6ms)  COMMIT
+</code></pre>
+
+</section>
+<!--       img: many legs --><section>
+
+<img src="images/many_legs.jpg">
+
+</section>
+<!--     WTF has_one --><section>
+
+<h2>WTF has_one Association</h2>
+
+<span class="fragment">See WTF uniquiness</span>
+
+</section>
+<!--     WTF Associations - lock! --><section>
+
+<h2>WTF Associations</h2>
+
+<pre class="fragment"><code class="ruby">headless = Dog.includes(:head).reject(&:head).first
+headless && Dog.transaction do
+  headless.lock!
+  headless.create_head
+end
+legless = Dog.includes(:legs).select{|d| d.legs.empty?}.first
+legless && Dog.transaction do
+  legless.lock!
+  legless.legs = 4.times.map{ Leg.create }
+end
+</code></pre>
+<pre class="fragment subst"><code class="ruby">headless = Dog.includes(:head).reject(&:head).first
+headless && <em>Dog.transaction do</em>
+  <em>headless.lock!</em>
+  headless.create_head
+end
+legless = Dog.includes(:legs).select{|d| d.legs.empty?}.first
+legless && <em>Dog.transaction do</em>
+  <em>legless.lock!</em>
+  legless.legs = 4.times.map{ Leg.create }
+end
+</code></pre>
+
+<pre class="fragment"><code class="no-highlight">1 tests, 2 assertions, 0 failures, 0 errors, 0 skips</code></pre>
+
+<pre class="fragment"><code class="no-highlight">--- expected
++++ actual
+@@ -1 +1 @@
+-"50 dogs with 1 head and 4 legs"
++"30 dogs with 1 head and 4 legs, 11 dogs with 2 heads and 4 legs, 4 dogs with 3 heads and 4 legs, 4 dogs with 4 heads and 4 legs, 1 dog with 5 heads and 4 legs"
+</code></pre>
+
+</section>
+<!--       img: car over water --><section>
+
+<img src="images/car_over_water.jpg">
+<aside class="notes">
+Courtesy of the Boston Public Library, Leslie Jones Collection
+http://www.flickr.com/photos/boston_public_library/5786875562/
+</aside>
+
+</section>
+<!--     WTF Associations select for update --><section>
+
+<h2>WTF Associations #2</h2>
+
+<pre class="fragment"><code class="ruby">headless, legless = nil, nil
+Dog.transaction do
+  headless = Dog.lock.includes(:head).reject(&:head).first
+  headless && headless.create_head
+end
+Dog.transaction do
+  legless = Dog.lock.includes(:legs).select{|d| d.legs.empty?}.first
+  legless && legless.legs = 4.times.map{ Leg.create }
+end
+</code></pre>
+
+<pre class="fragment subst"><code class="ruby">headless, legless = nil, nil
+Dog.transaction do
+  headless = <em>Dog.lock.includes(:head).reject(&:head).first</em>
+  headless && headless.create_head
+end
+Dog.transaction do
+  legless = <em>Dog.lock.includes(:legs).select{|d| d.legs.empty?}.first</em>
+  legless && legless.legs = 4.times.map{ Leg.create }
+end
+</code></pre>
+
+</section>
+<!--     WTF Associations - DIY --><section>
+
+<h2>WTF Associations - DIY</h2>
+
+<pre class="fragment"><code class="ruby">headless = Dog.includes(:head).reject(&:head).first
+if headless
+  headless.create_head
+  Head.update_all( { :dog_id => nil },
+    { :id => Head.where(:dog_id => headless.id).order(:id).pluck(:id)[0..-2] })
+end
+legless = Dog.includes(:legs).select{|d| d.legs.empty?}.first
+if legless
+  legless.legs = 4.times.map{ Leg.create }
+  Leg.update_all( { :dog_id => nil },
+    { :id => Leg.where(:dog_id => legless.id).order(:id).pluck(:id)[0..-5] })
+end
+</code></pre>
+<pre class="fragment subst"><code class="ruby">headless = Dog.includes(:head).reject(&:head).first
+if headless
+  headless.create_head
+  <em>Head.update_all( { :dog_id => nil },</em>
+    <em>{ :id => Head.where(:dog_id => headless.id).order(:id).pluck(:id)[0..-2] })</em>
+end
+legless = Dog.includes(:legs).select{|d| d.legs.empty?}.first
+if legless
+  legless.legs = 4.times.map{ Leg.create }
+  <em>Leg.update_all( { :dog_id => nil },</em>
+    <em>{ :id => Leg.where(:dog_id => legless.id).order(:id).pluck(:id)[0..-5] })</em>
+end
+</code></pre>
+
+</section>
+<!--   WTH 3: Migrations --><section>
+
+<h2>WTH 3: Emigration</h2>
+
+</section>
+<!--     DB migrations --><section>
+
+<h2>DB Migrations</h2>
+    <ul>
+        <li class="fragment">Add table - OK</li>
+        <li class="fragment">Add column - OK</li>
+        <li class="fragment">Add/remove index - so-so</li>
+        <li class="fragment">Remove column - oops</li>
+    </ul>
+
+</section>
+<!--     remove_column errors --><section>
+
+<h2>DB Migrations</h2>
+
+<pre class="fragment"><code class="ruby">remove_column :extra_columns, :extra</code></pre>
+
+<pre class="fragment small"><code class="sql">> ExtraColumn.create
+   (0.2ms)  BEGIN
+  SQL (34.9ms)  INSERT INTO "extra_columns" ("extra", "value") VALUES ($1, $2) RETURNING "id"  [["extra", nil], ["value", nil]]
+   (0.2ms)  ROLLBACK
+ActiveRecord::StatementInvalid: PG::Error: ERROR:  column "extra" of relation "extra_columns" does not exist at character 30
+: INSERT INTO "extra_columns" ("extra", "value") VALUES ($1, $2) RETURNING "id"
+</code></pre>
+<pre class="fragment small"><code class="sql">> ExtraColumn.create
+   (0.1ms)  BEGIN
+  SQL (62.7ms)  INSERT INTO `extra_columns` (`extra`, `value`) VALUES (NULL, NULL)
+Mysql2::Error: Unknown column 'extra' in 'field list': INSERT INTO `extra_columns` (`extra`, `value`) VALUES (NULL, NULL)
+   (0.1ms)  ROLLBACK
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'extra' in 'field list': INSERT INTO `extra_columns` (`extra`, `value`) VALUES (NULL, NULL)
+</code></pre>
+
+</section>
+<!--       img: train crash --><section>
+
+<img src="images/rebels.jpg">
+<aside class="notes">
+PD A.J. Russell
+http://commons.wikimedia.org/wiki/File:A.J._Russell_(American_-_Railroad_Accident_Caused_by_Rebels_-_Google_Art_Project.jpg
+</aside>
+
+</section>
+<!--     WTH with remove_column --><section>
+
+<h2>WTH with remove_column</h2>
+
+<pre class="fragment small"><code class="ruby">def columns
+  @columns ||= connection.schema_cache.columns[table_name].map do |col|
+    col = col.dup
+    col.primary = (col.name == primary_key)
+    col
+  end
+end
+</code></pre>
+<ul>
+<li class="fragment">All operations are defined in terms of klass.columns (directly or indirectly)</li>
+<li class="fragment">True for Rails 2.x, 3.0 <img class= "fragment smallTop" src="images/gap.jpg"> 3.2, 4.0</li>
+</ul>
+
+</section>
+<!--     WTF remove_column --><section>
+
+<h2>WTF remove_column</h2>
+
+<ul>
+<pre class="fragment small"><code class="ruby">class ExtraColumn < ActiveRecord::Base
+  def self.columns
+    super.reject { |c|
+      c.name == 'extra'
+    }
+  end
+end
+</code></pre>
+<li class="fragment">Deploy</li>
+<pre class="fragment"><code class="ruby">remove_column :extra_columns, :extra</code></pre></li>
+<li class="fragment">Remove ExtraColumn.columns</li>
+<li class="fragment">Deploy</li>
+</ul>
+
+</section>
+<!--     Rails 3.1 WTF --><section>
+
+<h2>Rails 3.1 "WTF" remove_column</h2>
+
+<img src="images/3.1.jpg">
+
+</section>
+<!--       img: car_on_car  --><section>
+
+<img src="images/car_on_car.jpg">
+<aside class="notes">
+Courtesy of the Boston Public Library, Leslie Jones Collection
+http://www.flickr.com/photos/boston_public_library/5786895180/
+</aside>
+
+</section>
+<!--   WTH 4: Assets --><section>
+
+<h2>WTH 4: Assets</h2>
+
+</section>
+<!--     deploy --><section>
+        <h2>Deployment</h2>
+<span>
+<img class="small" src="images/box_many_rails.png">
+<img class="small" src="images/box_many_rails.png">
+<img class="small" src="images/box_many_rails.png">
+<span>
+<img class="small" src="images/box_many_rails.png">
+<img class="small" src="images/box_many_rails.png">
+<img class="fragment small subst" src="images/box_many_rails_g.png">
+</span>
+<span class="fragment subst">
+<img class="small" src="images/box_many_rails_g.png">
+<img class="small" src="images/box_many_rails_g.png">
+</span>
+</span>
+<span class="fragment subst">
+<img class="small" src="images/box_many_rails_g.png">
+<img class="small" src="images/box_many_rails_g.png">
+<img class="small" src="images/box_many_rails_g.png">
+<img class="small" src="images/box_many_rails_g.png">
+<img class="small" src="images/box_many_rails_g.png">
+</span>
+
+</section>
+<!--     WTH with assets --><section>
+<h2>WTH with Assets</h2>
+<ul>
+    <li class="fragment">Each host has only current version of assets</li>
+    <li class="fragment">Page and each asset are served from arbitrary host</li>
+    <li class="fragment">Clients may have old pages referring to old assets</li>
+</ul>
+</section>
+<!--     WTH with assets --><section>
+<h2>WTF Assets</h2>
+<pre class="fragment"><code class="ruby">config.action_controller.asset_host = "//your.super.asset.host"</code></pre></li>
+<pre class="fragment"><code class="ruby">config.assets.digest = true</code></pre>
+<ul>
+    <li class="fragment">For S3 you can use gem 'asset_sync'</li>
+    <li class="fragment">... or roll out your own solution to upload precompiled assets before deployment</li>
+    <li class="fragment">Do not delete old assets too early</li>
+</ul>
+</section>
+<!--       img: fast  --><section>
+
+<img src="images/fast.jpg">
+<aside class="notes">
+CC-BY-SA 3.0 Bhanutpt
+http://commons.wikimedia.org/wiki/File:Fast_Moving_Train_India.jpg
+</aside>
+
+</section>
+<!--   WTH with Rails --><section>
+<h2>WTH with Rails</h2>
+<div class="fragment">
+<blockquote cite="http://david.heinemeierhansson.com/2012/rails-is-omakase.html">
+    Rails is omakase. A team of chefs picked out the ingredients, designed the APIs, and arranged the order
+    of consumption on your behalf according to their idea of what would make for a tasty full-stack framework.
+</blockquote>
+<p class="author">DHH</p>
+</div>
+<small class="fragment">
+    NOTICE: Consuming raw or undercooked meats, poultry, seafood, shellfish, or eggs may increase your risk
+    of foodborne illness
+</small>
+</section>
+<!-- Part 2. Beyond Rails --><section>
+
+<h2>Part 2</h2>
+<h3>Beyond Rails</h3>
+
+</section>
+<!--   Development and Deployment --><section>
+<h2>Development and Deployment</h2>
+<div class="fragment">
+<blockquote cite="http://david.heinemeierhansson.com/2012/rails-is-omakase.html">
+    Concurrency of development with deployment . . . has almost always proven counterproductive
+</blockquote>
+<p class="author">Harold Brown</p>
+</div>
+
+</section>
+<!--     Call for volunteers --><section>
+<h2>Development and Deployment</h2>
+<img class="small" src="images/box_many_rails_g.png">
+<img class="small" src="images/box_many_rails.png">
+<img class="small" src="images/box_many_rails.png">
+<img class="small" src="images/box_many_rails.png">
+<img class="small" src="images/box_many_rails.png">
+<p class="fragment">I Can Has Four Volunteers?</p>
+</section>
+<!--       img: railroad  --><section>
+
+<img src="images/railroad.jpg">
+<aside class="notes">
+CC BY 2.0 Chris Updegrave
+http://www.flickr.com/photos/cupdegrave/2253462031/
+</aside>
+
+</section>
+<!--     WTF Development and Deployment --><section>
+<h2>WTF Development and Deployment</h2>
+<ul>
+    <li class="fragment">
+        Your website is an API server and a client at the same time (but client is behind!)
+    </li>
+    <li class="fragment">Treat changing features as a new API version</li>
+    <ol>
+        <li class="fragment">Teach old dog new tricks (but do not show them)</li>
+        <li class="fragment">Teach new dog old tricks</li>
+        <li class="fragment">Swap your dogs</li>
+        <li class="fragment">Wait...</li>
+        <li class="fragment">Now you can forget old tricks</li>
+    </ol>
+</ul>
+
+</section>
+
 			</div>
 
 		</div>

@@ -4,6 +4,12 @@
   max-width: 98%;
 }
 
+.reveal img.smallTop {
+  width: 10em;
+  vertical-align: text-top;
+  margin-top: 0px;
+}
+
 .reveal section img.small {
   max-height: 60%;
   max-width: 60%;
@@ -22,4 +28,9 @@
 
 .reveal .hidden {
   display: none;
+}
+
+.reveal p.author {
+  text-align: right;
+  margin-right: 4em;
 }

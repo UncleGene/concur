@@ -15,29 +15,14 @@ describe Dog do
         headless = Dog.includes(:head).reject(&:head).first
         if headless
           headless.create_head
-          Head.update_all( {
-              :dog_id => nil 
-            }, {
-              :id => Head.
-                where(:dog_id => headless.id).
-                order(:id).
-                pluck(:id)[0..-2],
-              :dog_id => headless.id
-            })
+          Head.update_all( { :dog_id => nil },
+            { :id => Head.where(:dog_id => headless.id).order(:id).pluck(:id)[0..-2] })
         end
-
         legless = Dog.includes(:legs).select{|d| d.legs.empty?}.first
         if legless
           legless.legs = 4.times.map{ Leg.create }
-          Leg.update_all( {
-              :dog_id => nil
-            }, {
-              :id => Leg.
-                where(:dog_id => legless.id).
-                order(:id).
-                pluck(:id)[0..-5],
-              :dog_id => legless.id
-            })          
+          Leg.update_all( { :dog_id => nil },
+            { :id => Leg.where(:dog_id => legless.id).order(:id).pluck(:id)[0..-5] })
         end
       end while headless || legless
     end
