@@ -77,12 +77,16 @@ con·cur·ren·cy
 <h2>Vocabulary</h2>
 
 <ul>
-  <li class="fragment"><b>Concurrency</b>
-    <span class="fragment"> - Concurrency Problems [conflict, disagreement, dissensus]</span></li>
-  <li class="fragment"><b>WTH</b>
-    <span class="fragment"> - Why Things Happen</span></li>
+  <li class="fragment"><b>Concurrency:</b>
+    <span class="fragment">Concurrency Problems [conflict, disagreement, dissensus]</span></li>
+  <li class="fragment"><b>WTH:</b>
+    <span class="fragment">Why Things Happen</span></li>
   <li class="fragment"><b>WTF</b>
-    <span class="fragment"> - Way[s] To Fix</span></li>
+    <ol>
+      <li class="fragment">Way[s] To Fix</li>
+      <li class="fragment">Why This Framework [did not do this for me]?</small></li>
+    </ol>
+  </li>
 </ul>
 
 </section>
@@ -820,7 +824,7 @@ end
 <ul>
 <pre class="fragment small"><code class="ruby">class ExtraColumn < ActiveRecord::Base
   def self.columns
-    super.reject { |c|
+    @my_columns ||= super.reject { |c|
       c.name == 'extra'
     }
   end
