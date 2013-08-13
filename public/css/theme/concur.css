@@ -12,9 +12,17 @@
 
 .reveal section img.small {
   max-height: 60%;
-  max-width: 19%;
+  max-width: 18%;
   background: none;
   box-shadow: none;
+}
+
+.reveal .slides section .fragment.subst, .reveal .slides section .fragment.subst.visible.hidden {
+  display: none;
+}
+
+.reveal .slides section .fragment.subst.visible {
+  display: inherit;
 }
 
 .reveal pre.small {
