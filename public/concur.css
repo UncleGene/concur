@@ -30,8 +30,8 @@
 }
 
 .reveal em {
-  font-weight:bold;
-  background-color: #000;
+  font-style: normal;
+  background-color: #ff0;
 }
 
 .reveal .hidden {
@@ -42,3 +42,20 @@
   text-align: right;
   margin-right: 4em;
 }
+.reveal ul.tiny li {
+  font-size: 0.46em;
+  margin-top: -1.1em;
+}
+.reveal ul.tiny ul ul li {
+  font-size: 100%;
+}
+
+/* override */
+.reveal pre {
+  white-space: pre-wrap;       /* css-3 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;
+}
+

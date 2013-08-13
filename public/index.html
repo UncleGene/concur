@@ -12,12 +12,14 @@
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-		<link rel="stylesheet" href="css/reveal.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <link rel="stylesheet" href="css/reveal.min.css">
 		<link rel="stylesheet" href="css/theme/serif.css" id="theme">
-    <link rel="stylesheet" href="css/theme/concur.css">
+    <link rel="stylesheet" href="concur.css">
 
 		<!-- For syntax highlighting -->
-		<link rel="stylesheet" href="lib/css/zenburn.css">
+		<link rel="stylesheet" href="github.css">
 
 		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
 		<script>
@@ -35,7 +37,7 @@
 
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
-
+<!-- TODO: hash syntax here and in the code -->
 <!-- title --><section>
 
 <h2>Rails: Shadow Facets of Concurrency</h2>
@@ -111,28 +113,26 @@ http://commons.wikimedia.org/wiki/File:SeattleMonorailAccident.jpg
 </aside>
 
 </section>
-<!--   About me --><section>
+<!--   About me <section>
 
 <h2>About me:</h2>
 
 </section>
-<!--     AmazonKindle --><section>
+<!--     AmazonKindle <section>
 
 My first Rails site:
 <img src="images/AmazonKindle.jpg">
 
 </section>
-<!--     AmazonStudios --><section>
+<!--     AmazonStudios <section>
 
 My second one:
 <img src="images/AmazonStudios.jpg">
 
 </section>
-<!--       disclaimer --><section>
+<!--       disclaimer <section>
 
-<font color="red">&ldquo;</font>My<font color="red">&rdquo; - please pay attention to color ;-)</font>
-
-</section>
+<font color="red">&ldquo;</font>My<font color="red">&rdquo; - please pay attention to color ;-)</font></section> -->
 <!--   Concurrency WTH --><section>
 
 <h2>Concurrency WTH</h2>
@@ -147,22 +147,24 @@ My second one:
 <!--     production --><section>
 
 <h3>Production Environment</h3>
+<div>
+<img class="small" src="images/box_many_rails.png">
+<img class="small" src="images/box_one_db.png">
+</div>
+<div class="fragment subst" data-fragment-index="2">
 <img class="small" src="images/box_many_rails.png">
 <img class="small" src="images/box_many_rails.png">
 <img class="small" src="images/box_one_db.png">
 <img class="small" src="images/box_many_rails.png">
 <img class="small" src="images/box_many_rails.png">
+</div>
 
-</section>
-<!--     sources of concurrency --><section>
-
-<h3>Sources of Concurrency</h3>
 <ul>
-  <li class="fragment">Shared resources
-  <li class="fragment">Non-deterministic request processing
+  <li class="fragment" data-fragment-index="1">Shared resources
+  <li class="fragment" data-fragment-index="3">Non-deterministic request processing
   <ul>
-    <li class="fragment">Who
-    <li class="fragment">When
+    <li class="fragment" data-fragment-index="4">Who
+    <li class="fragment" data-fragment-index="5">When
   </ul>
 </ul>
 
@@ -184,7 +186,7 @@ My second one:
 </div>
 <div class="fragment">
   test_helper.rb (spec_helper.rb):
-  <pre><code class="ruby">def concurrently processes = 10
+<pre><code class="ruby">def concurrently processes = 10
   processes.times do
     fork do
       yield
@@ -192,7 +194,25 @@ My second one:
   end
   assert Process.waitall.map(&:last).all? &:success?
 end
-  </code></pre>
+</code></pre>
+<pre class="fragment subst"><code class="ruby" data-noescape>def concurrently processes = 10
+  processes.times do
+    <em>fork do</em>
+      <em>yield</em>
+    <em>end</em>
+  end
+  assert Process.waitall.map(&:last).all? &:success?
+end
+</code></pre>
+<pre class="fragment subst"><code class="ruby" data-noescape>def concurrently processes = 10
+  processes.times do
+    fork do
+      yield
+    end
+  end
+  <em>assert Process.waitall.map(&:last).all? &:success?</em>
+end
+</code></pre>
 </div>
 </section>
 <!--     concurrent testing - complete --><section>
@@ -217,7 +237,7 @@ end
 end  
 </code></pre>
 
-<pre class="fragment subst"><code class="ruby">def concurrently processes = 10
+<pre class="fragment subst"><code class="ruby" data-noescape>def concurrently processes = 10
   <em>ActiveRecord::Base.remove_connection</em>
   processes.times do
     fork do
@@ -236,7 +256,7 @@ end  
 end
 </code></pre>
 
-<pre class="fragment subst"><code class="ruby">def concurrently processes = 10
+<pre class="fragment subst"><code class="ruby" data-noescape>def concurrently processes = 10
   ActiveRecord::Base.remove_connection
   processes.times do
     fork do
@@ -275,18 +295,40 @@ http://sorah42.deviantart.com/art/Unique-187278898
 end   
 </code></pre>
 
-<pre class="fragment"><code class="ruby">describe Number do
+<pre class="fragment"><code class="ruby" data-noescape>describe Number do
+  it 'should have unique values' do
+    concurrently do
+      10.times do
+        Number.find_or_create_by_value Number.count
+      end
+    end
+    Number.count.must_equal Number.select('distinct value').count
+  end
+end
+</code></pre>
+<pre class="fragment subst"><code class="ruby" data-noescape>describe Number do
   it 'should have unique values' do
     concurrently do
       10.times do
         <em>Number.find_or_create_by_value Number.count</em>
       end
     end
-    unique = Number.select('distinct value').count
-    Number.count.must_equal unique
+    Number.count.must_equal Number.select('distinct value').count
   end
 end
 </code></pre>
+<pre class="fragment subst"><code class="ruby" data-noescape>describe Number do
+  it 'should have unique values' do
+    concurrently do
+      10.times do
+        Number.find_or_create_by_value Number.count
+      end
+    end
+    <em>Number.count.must_equal Number.select('distinct value').count</em>
+  end
+end
+</code></pre>
+
 
 <pre class="fragment"><code class="no-highlight"> 1) Failure:
 test_0001_should_have_unique_values(Number) :
@@ -304,18 +346,19 @@ http://commons.wikimedia.org/wiki/File:GuateQuake1976BentRailsA.jpg
 </aside>
 
 </section>
+<!--  TODO: detailed transitions below -->
 <!--     find_or_create_by WTH --><section>
 
 <h2>find_or_create_by WTH</h2>
 
-<pre class="fragment small"><code class="sql"> > Number.find_or_create_by_value(3)
+<pre class="fragment"><code class="sql"> > Number.find_or_create_by_value(3)
   Number Load (16.2ms)  SELECT "numbers".* FROM "numbers" WHERE "numbers"."value" = 3 LIMIT 1
    (0.2ms)  BEGIN
   SQL (9.0ms)  INSERT INTO "numbers" ("value") VALUES ($1) RETURNING "id"  [["value", 3]]
    (0.4ms)  COMMIT
 </code></pre>
 
-<pre class="fragment small"><code class="sql"> > Number.where(:value => 5).first_or_create{ |r| r.value=5 }
+<pre class="fragment"><code class="sql"> > Number.where(:value => 3).first_or_create{ |r| r.value = 3 }
   Number Load (0.4ms)  SELECT "numbers".* FROM "numbers" WHERE "numbers"."value" = 3 LIMIT 1
    (0.2ms)  BEGIN
   SQL (0.3ms)  INSERT INTO "numbers" ("value") VALUES ($1) RETURNING "id"  [["value", 3]]
@@ -348,7 +391,7 @@ http://en.wikipedia.org/wiki/File:Train_wreck_at_Montparnasse_1895.jpg
 end
 </code></pre>
 
-<pre class="fragment small"><code class="ruby">describe ValidatedNumber do
+<pre class="fragment"><code class="ruby">describe ValidatedNumber do
   it 'should have unique values' do
     concurrently do
       10.times do
@@ -369,7 +412,7 @@ Expected: 37
 
 </code></pre>
 
-<pre class="fragment subst small"><code class="sql"> > ValidatedNumber.create(:value=>1)
+<pre class="fragment subst"><code class="sql"> > ValidatedNumber.create(:value=>1)
    (0.1ms)  BEGIN
   ValidatedNumber Exists (25.2ms)  SELECT 1 AS one FROM "validated_numbers" WHERE "validated_numbers"."value" = 1 LIMIT 1
   SQL (14.7ms)  INSERT INTO "validated_numbers" ("value") VALUES ($1) RETURNING "id"  [["value", 1]]
@@ -400,7 +443,7 @@ http://www.flickr.com/photos/boston_public_library/5786322835/
 end
 </code></pre>
 
-<pre class="fragment small"><code class="sql"># Running tests:
+<pre class="fragment"><code class="no-highlight"># Running tests:
 
 ActiveRecord::RecordNotUnique: PG::Error: ERROR:  duplicate key value violates unique constraint "index_constrained_numbers_on_value"
 DETAIL:  Key (value)=(0) already exists.
@@ -417,6 +460,27 @@ DETAIL:  Key (value)=(0) already exists.
 ActiveRecord::RecordNotUnique: PG::Error: ERROR:  duplicate key value violates unique constraint "index_constrained_numbers_on_value"
 DETAIL:  Key (value)=(0) already exists.
 : INSERT INTO "constrained_numbers" ("value") VALUES ($1) RETURNING "id"
+[...]
+</code></pre>
+
+<pre class="fragment subst"><code class="no-highlight" data-noescape># Running tests:
+
+<em>ActiveRecord::RecordNotUnique</em>: PG::Error: ERROR:  duplicate key value violates unique constraint "index_constrained_numbers_on_value"
+DETAIL:  Key (value)=(0) already exists.
+: INSERT INTO "constrained_numbers" ("value") VALUES ($1) RETURNING "id"
+<em>ActiveRecord::RecordNotUnique</em>: PG::Error: ERROR:  duplicate key value violates unique constraint "index_constrained_numbers_on_value"
+DETAIL:  Key (value)=(0) already exists.
+: INSERT INTO "constrained_numbers" ("value") VALUES ($1) RETURNING "id"
+<em>ActiveRecord::RecordNotUnique</em>: PG::Error: ERROR:  duplicate key value violates unique constraint "index_constrained_numbers_on_value"
+DETAIL:  Key (value)=(0) already exists.
+: INSERT INTO "constrained_numbers" ("value") VALUES ($1) RETURNING "id"
+<em>ActiveRecord::RecordNotUnique</em>: PG::Error: ERROR:  duplicate key value violates unique constraint "index_constrained_numbers_on_value"
+DETAIL:  Key (value)=(0) already exists.
+: INSERT INTO "constrained_numbers" ("value") VALUES ($1) RETURNING "id"
+<em>ActiveRecord::RecordNotUnique</em>: PG::Error: ERROR:  duplicate key value violates unique constraint "index_constrained_numbers_on_value"
+DETAIL:  Key (value)=(0) already exists.
+: INSERT INTO "constrained_numbers" ("value") VALUES ($1) RETURNING "id"
+[...]
 </code></pre>
 
 </section>
@@ -442,7 +506,7 @@ http://www.flickr.com/photos/7552532@N07/2488898004/
 end
 </code></pre>
 
-<pre class="fragment small"><code class="no-highlight"># Running tests:
+<pre class="fragment"><code class="no-highlight"># Running tests:
 
 .
 
@@ -451,7 +515,7 @@ Finished tests in 8.337332s, 0.1199 tests/s, 0.2399 assertions/s.
 1 tests, 2 assertions, 0 failures, 0 errors, 0 skips
 </code></pre>
 
-<pre class="fragment small"><code class="sql">ActiveRecord::StatementInvalid: Mysql2::Error: Deadlock found when trying to get lock; try restarting transaction: INSERT INTO `safe_numbers` (`value`) VALUES (132)
+<pre class="fragment"><code class="sql">ActiveRecord::StatementInvalid: Mysql2::Error: Deadlock found when trying to get lock; try restarting transaction: INSERT INTO `safe_numbers` (`value`) VALUES (132)
 ActiveRecord::StatementInvalid: Mysql2::Error: Deadlock found when trying to get lock; try restarting transaction: INSERT INTO `safe_numbers` (`value`) VALUES (132)
 F
 </code></pre>
@@ -482,7 +546,7 @@ http://www.flickr.com/photos/morphyoss/4963981594/
   end
 </code></pre>
 
-<pre class="fragment small"><code class="no-highlight"># Running tests:
+<pre class="fragment"><code class="no-highlight"># Running tests:
 
 .
 
@@ -571,7 +635,7 @@ http://commons.wikimedia.org/wiki/File:Loket_vid_j%C3%A4rnv%C3%A4gsolyckan_i_Get
 
 <h2>WTH with Heads</h2>
 
-<pre class="fragment small"><code class="sql">> Dog.first.create_head
+<pre class="fragment"><code class="sql">> Dog.first.create_head
   Dog Load (0.3ms)  SELECT "dogs".* FROM "dogs" LIMIT 1
    (0.1ms)  BEGIN
   SQL (12.0ms)  INSERT INTO "heads" ("dog_id") VALUES ($1) RETURNING "id"  [["dog_id", 1]]
@@ -582,7 +646,7 @@ http://commons.wikimedia.org/wiki/File:Loket_vid_j%C3%A4rnv%C3%A4gsolyckan_i_Get
    (0.4ms)  COMMIT
 </code></pre>
 
-<pre class="fragment small subst"><code class="sql">> Dog.first.create_head
+<pre class="fragment subst"><code class="sql" data-noescape>> Dog.first.create_head
   Dog Load (0.3ms)  SELECT "dogs".* FROM "dogs" LIMIT 1
    (0.1ms)  BEGIN
   SQL (12.0ms)  INSERT INTO "heads" ("dog_id") VALUES ($1) RETURNING "id"  [["dog_id", 1]]
@@ -602,7 +666,7 @@ http://commons.wikimedia.org/wiki/File:Loket_vid_j%C3%A4rnv%C3%A4gsolyckan_i_Get
 
 <h2>WTH with Legs</h2>
 
-<pre class="fragment small"><code class="sql">>   Dog.first.legs = Leg.all.sample(4)
+<pre class="fragment"><code class="sql">>   Dog.first.legs = Leg.all.sample(4)
   Dog Load (0.3ms)  SELECT "dogs".* FROM "dogs" LIMIT 1
   Leg Load (0.2ms)  SELECT "legs".* FROM "legs"
   Leg Load (0.3ms)  SELECT "legs".* FROM "legs" WHERE "legs"."dog_id" = 1
@@ -614,7 +678,7 @@ http://commons.wikimedia.org/wiki/File:Loket_vid_j%C3%A4rnv%C3%A4gsolyckan_i_Get
    (0.5ms)  COMMIT
 </code></pre>
 
-<pre class="fragment small"><code class="sql">> Dog.first.legs = Leg.all.sample(4)
+<pre class="fragment"><code class="sql" data-noescape>> Dog.first.legs = Leg.all.sample(4)
   Dog Load (0.4ms)  SELECT "dogs".* FROM "dogs" LIMIT 1
   Leg Load (0.3ms)  SELECT "legs".* FROM "legs"
   Leg Load (0.3ms)  SELECT "legs".* FROM "legs" WHERE "legs"."dog_id" = 1
@@ -625,7 +689,7 @@ http://commons.wikimedia.org/wiki/File:Loket_vid_j%C3%A4rnv%C3%A4gsolyckan_i_Get
    (0.6ms)  COMMIT
 </code></pre>
 
-<pre class="fragment small subst"><code class="sql">> Dog.first.legs = Leg.all.sample(4)
+<pre class="fragment subst"><code class="sql" data-noescape>> Dog.first.legs = Leg.all.sample(4)
   Dog Load (0.4ms)  SELECT "dogs".* FROM "dogs" LIMIT 1
   Leg Load (0.3ms)  SELECT "legs".* FROM "legs"
   Leg Load (0.3ms)  <em>SELECT "legs".* FROM "legs" WHERE "legs"."dog_id" = 1</em>
@@ -664,7 +728,7 @@ legless && Dog.transaction do
   legless.legs = 4.times.map{ Leg.create }
 end
 </code></pre>
-<pre class="fragment subst"><code class="ruby">headless = Dog.includes(:head).reject(&:head).first
+<pre class="fragment subst"><code class="ruby" data-noescape>headless = Dog.includes(:head).reject(&:head).first
 headless && <em>Dog.transaction do</em>
   <em>headless.lock!</em>
   headless.create_head
@@ -710,7 +774,7 @@ Dog.transaction do
 end
 </code></pre>
 
-<pre class="fragment subst"><code class="ruby">headless, legless = nil, nil
+<pre class="fragment subst"><code class="ruby" data-noescape>headless, legless = nil, nil
 Dog.transaction do
   headless = <em>Dog.lock.includes(:head).reject(&:head).first</em>
   headless && headless.create_head
@@ -739,7 +803,7 @@ if legless
     { :id => Leg.where(:dog_id => legless.id).order(:id).pluck(:id)[0..-5] })
 end
 </code></pre>
-<pre class="fragment subst"><code class="ruby">headless = Dog.includes(:head).reject(&:head).first
+<pre class="fragment subst"><code class="ruby" data-noescape>headless = Dog.includes(:head).reject(&:head).first
 if headless
   headless.create_head
   <em>Head.update_all( { :dog_id => nil },</em>
@@ -776,14 +840,14 @@ end
 
 <pre class="fragment"><code class="ruby">remove_column :extra_columns, :extra</code></pre>
 
-<pre class="fragment small"><code class="sql">> ExtraColumn.create
+<pre class="fragment"><code class="sql">> ExtraColumn.create
    (0.2ms)  BEGIN
   SQL (34.9ms)  INSERT INTO "extra_columns" ("extra", "value") VALUES ($1, $2) RETURNING "id"  [["extra", nil], ["value", nil]]
    (0.2ms)  ROLLBACK
 ActiveRecord::StatementInvalid: PG::Error: ERROR:  column "extra" of relation "extra_columns" does not exist at character 30
 : INSERT INTO "extra_columns" ("extra", "value") VALUES ($1, $2) RETURNING "id"
 </code></pre>
-<pre class="fragment small"><code class="sql">> ExtraColumn.create
+<pre class="fragment"><code class="sql">> ExtraColumn.create
    (0.1ms)  BEGIN
   SQL (62.7ms)  INSERT INTO `extra_columns` (`extra`, `value`) VALUES (NULL, NULL)
 Mysql2::Error: Unknown column 'extra' in 'field list': INSERT INTO `extra_columns` (`extra`, `value`) VALUES (NULL, NULL)
@@ -805,7 +869,7 @@ http://commons.wikimedia.org/wiki/File:A.J._Russell_(American_-_Railroad_Acciden
 
 <h2>WTH with remove_column</h2>
 
-<pre class="fragment small"><code class="ruby">def columns
+<pre class="fragment"><code class="ruby">def columns
   @columns ||= connection.schema_cache.columns[table_name].map do |col|
     col = col.dup
     col.primary = (col.name == primary_key)
@@ -824,7 +888,7 @@ end
 <h2>WTF remove_column</h2>
 
 <ul>
-<pre class="fragment small"><code class="ruby">class ExtraColumn < ActiveRecord::Base
+<pre class="fragment"><code class="ruby">class ExtraColumn < ActiveRecord::Base
   def self.columns
     @my_columns ||= super.reject { |c|
       c.name == 'extra'
@@ -860,7 +924,8 @@ http://www.flickr.com/photos/boston_public_library/5786895180/
 <h2>WTH 4: Assets</h2>
 
 </section>
-<!--     deploy --><section>
+<!-- TODO: deploy via shutdown -->
+<!--     rolling deploy assets WTH --><section>
         <h2>Deployment</h2>
 <span>
 <img class="small" src="images/box_many_rails.png">
@@ -885,23 +950,15 @@ http://www.flickr.com/photos/boston_public_library/5786895180/
 </span>
 
 </section>
-<!--     WTH with assets --><section>
-<h2>WTH with Assets</h2>
-<ul>
-    <li class="fragment">Each host has only current version of assets</li>
-    <li class="fragment">Page and each asset are served from arbitrary host</li>
-    <li class="fragment">Clients may have old pages referring to old assets</li>
-</ul>
-</section>
-<!--     WTH with assets --><section>
+<!--     WTF with assets --><section>
 <h2>WTF Assets</h2>
 <pre class="fragment"><code class="ruby">config.action_controller.asset_host = "//your.super.asset.host"</code></pre></li>
-<pre class="fragment"><code class="ruby">config.assets.digest = true</code></pre>
 <ul>
     <li class="fragment">For S3 you can use gem 'asset_sync'</li>
     <li class="fragment">... or roll out your own solution to upload precompiled assets before deployment</li>
     <li class="fragment">Do not delete old assets too early</li>
 </ul>
+<pre class="fragment"><code class="ruby">config.assets.digest = true</code></pre>
 </section>
 <!--       img: fast  --><section>
 
@@ -977,10 +1034,9 @@ http://www.flickr.com/photos/cupdegrave/2253462031/
 </ul>
 
 </section>
-<!--   Who will save? --><section>
+<!--   to_do || !to_do == true - if can speak fast --><section>
 
 </section>
-
 <!-- quiz recap --><section>
 
 <h3>
@@ -1003,30 +1059,34 @@ http://www.flickr.com/photos/scfiasco/4490322916/
 </section>
 <!-- credits --><section>
     <h4>Credits</h4>
-    <small><pre>
-Citations
-  - concurrency - Merriam-Webster.com. 2013. http://www.merriam-webster.com (5 Aug 2013)
-  - software concurrency - http://en.wikipedia.org/wiki/Concurrency_(computer_science)
-  - David Heinemeier Hansson - http://david.heinemeierhansson.com/2012/rails-is-omakase.html
-  - Harold Brown - http://www.foreignaffairs.com/articles/40540/harold-brown/is-sdi-technically-feasible
-Images
-  - Garrett Fitzgerald - http://commons.wikimedia.org/wiki/File:SeattleMonorailAccident.jpg
-  - SoRah42 - http://sorah42.deviantart.com/art/Unique-187278898
-  - http://commons.wikimedia.org/wiki/File:GuateQuake1976BentRailsA.jpg
-  - http://en.wikipedia.org/wiki/File:Train_wreck_at_Montparnasse_1895.jpg
-  - Courtesy of the Boston Public Library, Leslie Jones Collection
-    - http://www.flickr.com/photos/boston_public_library/5786322835/
-    - http://www.flickr.com/photos/boston_public_library/5786875562/
-    - http://www.flickr.com/photos/boston_public_library/5786895180/
-  - ATOMIC Hot Links - http://www.flickr.com/photos/7552532@N07/2488898004/
-  - Mike Campbell - http://www.flickr.com/photos/morphyoss/4963981594/
-  - Swansea - http://www.freefoto.com/download/23-22-1/Swansea-London-Paddington-High-Speed-Train--HST-
-  - http://commons.wikimedia.org/wiki/File:Loket_vid_j%C3%A4rnv%C3%A4gsolyckan_i_Get%C3%A5_1918.jpg
-  - A.J. Russell - http://commons.wikimedia.org/wiki/File:A.J._Russell_(American_-_Railroad_Accident_Caused_by_Rebels_-_Google_Art_Project.jpg
-  - Bhanutpt - http://commons.wikimedia.org/wiki/File:Fast_Moving_Train_India.jpg
-  - Chris Updegrave - http://www.flickr.com/photos/cupdegrave/2253462031/
-  - SCFiasco - http://www.flickr.com/photos/scfiasco/4490322916/
-</pre></small>
+<ul class="tiny">
+  <li>concurrency - Merriam-Webster.com. 2013. http://www.merriam-webster.com (5 Aug 2013)</li>
+  <li>software concurrency - http://en.wikipedia.org/wiki/Concurrency_(computer_science)</li>
+  <li>David Heinemeier Hansson - http://david.heinemeierhansson.com/2012/rails-is-omakase.html</li>
+  <li>Harold Brown - http://www.foreignaffairs.com/articles/40540/harold-brown/is-sdi-technically-feasible</li>
+
+<li>Images:</li>
+<ul>
+  <li>Garrett Fitzgerald - http://commons.wikimedia.org/wiki/File:SeattleMonorailAccident.jpg</li>
+  <li>SoRah42 - http://sorah42.deviantart.com/art/Unique-187278898</li>
+  <li>http://commons.wikimedia.org/wiki/File:GuateQuake1976BentRailsA.jpg</li>
+  <li>http://en.wikipedia.org/wiki/File:Train_wreck_at_Montparnasse_1895.jpg</li>
+  <li>Courtesy of the Boston Public Library, Leslie Jones Collection:
+    <ul>
+        <li>http://www.flickr.com/photos/boston_public_library/5786322835/</li>
+        <li>http://www.flickr.com/photos/boston_public_library/5786875562/</li>
+        <li>http://www.flickr.com/photos/boston_public_library/5786895180/</li>
+    </ul>
+  <li>ATOMIC Hot Links - http://www.flickr.com/photos/7552532@N07/2488898004/</li>
+  <li>Mike Campbell - http://www.flickr.com/photos/morphyoss/4963981594/</li>
+  <li>Swansea - http://www.freefoto.com/download/23-22-1/Swansea-London-Paddington-High-Speed-Train--HST-</li>
+  <li>http://commons.wikimedia.org/wiki/File:Loket_vid_j%C3%A4rnv%C3%A4gsolyckan_i_Get%C3%A5_1918.jpg</li>
+  <li>A.J. Russell - http://commons.wikimedia.org/wiki/File:A.J._Russell_(American_-_Railroad_Accident_Caused_by_Rebels_-_Google_Art_Project.jpg</li>
+  <li>Bhanutpt - http://commons.wikimedia.org/wiki/File:Fast_Moving_Train_India.jpg</li>
+  <li>Chris Updegrave - http://www.flickr.com/photos/cupdegrave/2253462031/</li>
+  <li>SCFiasco - http://www.flickr.com/photos/scfiasco/4490322916/</li>
+</ul>
+
 
 </section>
 
@@ -1035,7 +1095,7 @@ Images
 		</div>
 
 		<script src="lib/js/head.min.js"></script>
-		<script src="js/reveal.min.js"></script>
+		<script src="js/reveal.js"></script>
 
 		<script>
 
@@ -1051,12 +1111,12 @@ Images
 
 				// Optional libraries used to extend on reveal.js
 				dependencies: [
-					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
-					{ src: 'plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
-					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
-					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
           { src: 'lib/js/fullscreen-img.js' }
 
 					// { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
