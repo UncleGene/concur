@@ -37,7 +37,6 @@
 
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
-<!-- TODO: hash syntax here and in the code -->
 <!-- title --><section>
 
 <h2>Rails: Shadow Facets of Concurrency</h2>
@@ -289,7 +288,7 @@ http://sorah42.deviantart.com/art/Unique-187278898
 </section>
 <!--     naive find_or_create --><section>
 
-<h2>find_or_create_by</h2>
+<h2>find_or_create_by (or first_or_create)</h2>
 <pre class="fragment"><code class="ruby">class Number < ActiveRecord::Base
   # t.integer :value
 end   
@@ -346,31 +345,71 @@ http://commons.wikimedia.org/wiki/File:GuateQuake1976BentRailsA.jpg
 </aside>
 
 </section>
-<!--  TODO: detailed transitions below -->
 <!--     find_or_create_by WTH --><section>
 
 <h2>find_or_create_by WTH</h2>
-
-<pre class="fragment"><code class="sql"> > Number.find_or_create_by_value(3)
+<div>
+<pre class="fragment" data-fragment-index="1"><code class="sql"> > Number.find_or_create_by_value(3)
   Number Load (16.2ms)  SELECT "numbers".* FROM "numbers" WHERE "numbers"."value" = 3 LIMIT 1
    (0.2ms)  BEGIN
   SQL (9.0ms)  INSERT INTO "numbers" ("value") VALUES ($1) RETURNING "id"  [["value", 3]]
    (0.4ms)  COMMIT
 </code></pre>
-
-<pre class="fragment"><code class="sql"> > Number.where(:value => 3).first_or_create{ |r| r.value = 3 }
-  Number Load (0.4ms)  SELECT "numbers".* FROM "numbers" WHERE "numbers"."value" = 3 LIMIT 1
+<pre class="fragment subst" data-fragment-index="2"><code class="sql" data-noescape> > Number.find_or_create_by_value(3)
+  Number Load (16.2ms)  <em>SELECT "numbers".* FROM "numbers" WHERE "numbers"."value" = 3 LIMIT 1</em>
    (0.2ms)  BEGIN
-  SQL (0.3ms)  INSERT INTO "numbers" ("value") VALUES ($1) RETURNING "id"  [["value", 3]]
-   (0.5ms)  COMMIT
+  SQL (9.0ms)  INSERT INTO "numbers" ("value") VALUES ($1) RETURNING "id"  [["value", 3]]
+   (0.4ms)  COMMIT
+</code></pre>
+<pre class="fragment subst" data-fragment-index="3"><code class="sql" data-noescape> > Number.find_or_create_by_value(3)
+  Number Load (16.2ms)  SELECT "numbers".* FROM "numbers" WHERE "numbers"."value" = 3 LIMIT 1
+   (0.2ms)  BEGIN
+  SQL (9.0ms)  <em>INSERT INTO "numbers" ("value") VALUES ($1) RETURNING "id"  [["value", 3]]</em>
+   (0.4ms)  COMMIT
 </code></pre>
 
-<ul>
-  <li class="fragment">Process 1: Does record exist? No.
-  <li class="fragment">Process 2: Does record exist? No.
-  <li class="fragment">Process 1: I am happy, insert a new one!
-  <li class="fragment">Process 2: I am happy too, insert a new one!
-</ul>
+<pre class="fragment" data-fragment-index="4"><code class="sql"> > Number.where(:value => 3).first_or_create{ |r| r.value = 3 }
+  Number Load (0.4ms)  SELECT "numbers".* FROM "numbers" WHERE "numbers"."value" = 3 LIMIT 1
+</code></pre>
+<pre class="fragment subst" data-fragment-index="5"><code class="sql" data-noescape> > Number.where(:value => 3).first_or_create{ |r| r.value = 3 }
+  Number Load (0.4ms)  <em>SELECT "numbers".* FROM "numbers" WHERE "numbers"."value" = 3 LIMIT 1</em>
+</code></pre>
+</div>
+
+<div class="fragment subst" data-fragment-index="6">
+<pre><code class="sql"> > Number.find_or_create_by_value(3)
+  Number Load (16.2ms)  SELECT "numbers".* FROM "numbers" WHERE "numbers"."value" = 3 LIMIT 1
+   (0.2ms)  BEGIN
+  SQL (9.0ms)  INSERT INTO "numbers" ("value") VALUES ($1) RETURNING "id"  [["value", 3]]
+   (0.4ms)  COMMIT
+</code></pre>
+<pre class="fragment subst" data-fragment-index="7"><code class="sql" data-noescape> > Number.find_or_create_by_value(3)
+  Number Load (16.2ms)  <em>SELECT "numbers".* FROM "numbers" WHERE "numbers"."value" = 3 LIMIT 1</em>
+   (0.2ms)  BEGIN
+  SQL (9.0ms)  INSERT INTO "numbers" ("value") VALUES ($1) RETURNING "id"  [["value", 3]]
+   (0.4ms)  COMMIT
+</code></pre>
+<pre class="fragment subst" data-fragment-index="9"><code class="sql" data-noescape> > Number.find_or_create_by_value(3)
+  Number Load (16.2ms)  SELECT "numbers".* FROM "numbers" WHERE "numbers"."value" = 3 LIMIT 1
+   (0.2ms)  BEGIN
+  SQL (9.0ms)  <em>INSERT INTO "numbers" ("value") VALUES ($1) RETURNING "id"  [["value", 3]]</em>
+   (0.4ms)  COMMIT
+</code></pre>
+
+<pre><code class="sql"> > Number.where(:value => 3).first_or_create{ |r| r.value = 3 }
+  Number Load (0.4ms)  SELECT "numbers".* FROM "numbers" WHERE "numbers"."value" = 3 LIMIT 1
+</code></pre>
+<pre class="fragment subst" data-fragment-index="8"><code class="sql" data-noescape> > Number.where(:value => 3).first_or_create{ |r| r.value = 3 }
+  Number Load (0.4ms)  <em>SELECT "numbers".* FROM "numbers" WHERE "numbers"."value" = 3 LIMIT 1</em>
+</code></pre>
+<pre class="fragment subst" data-fragment-index="10"><code class="sql" data-noescape> > Number.where(:value => 3).first_or_create{ |r| r.value = 3 }
+  Number Load (0.4ms)  SELECT "numbers".* FROM "numbers" WHERE "numbers"."value" = 3 LIMIT 1
+   (0.2ms)  BEGIN
+  SQL (0.3ms)  <em>INSERT INTO "numbers" ("value") VALUES ($1) RETURNING "id"  [["value", 3]]</em>
+   (0.5ms)  COMMIT
+</code></pre>
+</div>
+
 
 </section>
 <!--       img: train wreck --><section>
@@ -415,6 +454,12 @@ Expected: 37
 <pre class="fragment subst"><code class="sql"> > ValidatedNumber.create(:value=>1)
    (0.1ms)  BEGIN
   ValidatedNumber Exists (25.2ms)  SELECT 1 AS one FROM "validated_numbers" WHERE "validated_numbers"."value" = 1 LIMIT 1
+  SQL (14.7ms)  INSERT INTO "validated_numbers" ("value") VALUES ($1) RETURNING "id"  [["value", 1]]
+   (0.7ms)  COMMIT
+</code></pre>
+<pre class="fragment subst"><code class="sql" data-noescape> > ValidatedNumber.create(:value=>1)
+   (0.1ms)  BEGIN
+  ValidatedNumber Exists (25.2ms)  <em>SELECT 1 AS one FROM "validated_numbers" WHERE "validated_numbers"."value" = 1 LIMIT 1</em>
   SQL (14.7ms)  INSERT INTO "validated_numbers" ("value") VALUES ($1) RETURNING "id"  [["value", 1]]
    (0.7ms)  COMMIT
 </code></pre>
@@ -505,6 +550,14 @@ http://www.flickr.com/photos/7552532@N07/2488898004/
   end
 end
 </code></pre>
+<pre class="fragment subst"><code class="ruby" data-noescape>class SafeNumber < ActiveRecord::Base
+  def self.awesome_creation(val)
+    where(value: val).first_or_create{ |r| r.value = val }
+  <em>rescue ActiveRecord::RecordNotUnique</em>
+    <em>retry</em>
+  end
+end
+</code></pre>
 
 <pre class="fragment"><code class="no-highlight"># Running tests:
 
@@ -517,6 +570,10 @@ Finished tests in 8.337332s, 0.1199 tests/s, 0.2399 assertions/s.
 
 <pre class="fragment"><code class="sql">ActiveRecord::StatementInvalid: Mysql2::Error: Deadlock found when trying to get lock; try restarting transaction: INSERT INTO `safe_numbers` (`value`) VALUES (132)
 ActiveRecord::StatementInvalid: Mysql2::Error: Deadlock found when trying to get lock; try restarting transaction: INSERT INTO `safe_numbers` (`value`) VALUES (132)
+F
+</code></pre>
+<pre class="fragment subst"><code class="sql" data-noescape><em>ActiveRecord::StatementInvalid</em>: Mysql2::Error: <em>Deadlock found</em> when trying to get lock; try restarting transaction: INSERT INTO `safe_numbers` (`value`) VALUES (132)
+<em>ActiveRecord::StatementInvalid</em>: Mysql2::Error: <em>Deadlock found</em> when trying to get lock; try restarting transaction: INSERT INTO `safe_numbers` (`value`) VALUES (132)
 F
 </code></pre>
 
@@ -567,7 +624,7 @@ http://www.freefoto.com/download/23-22-1/Swansea-London-Paddington-High-Speed-Tr
 </section>
 <!--   WTH 2: Assoiations --><section>
 
-<h2>WTH 2: I Can Has One or Many?</h2>
+<h2>WTH 2: I Can Haz One or Many?</h2>
 
 </section>
 <!--     dog with had and legs --><section>
@@ -683,7 +740,7 @@ http://commons.wikimedia.org/wiki/File:Loket_vid_j%C3%A4rnv%C3%A4gsolyckan_i_Get
   Leg Load (0.3ms)  SELECT "legs".* FROM "legs"
   Leg Load (0.3ms)  SELECT "legs".* FROM "legs" WHERE "legs"."dog_id" = 1
    (0.1ms)  BEGIN
-  SQL (0.3ms)  UPDATE "legs" SET "dog_id" = NULL WHERE "legs"."dog_id" = 1 AND "legs"."id" IN (10, 5)
+  SQL (0.3ms)  <em>UPDATE "legs" SET "dog_id" = NULL WHERE "legs"."dog_id" = 1 AND "legs"."id" IN (10, 5)</em>
    (0.2ms)  <em>UPDATE "legs" SET "dog_id" = 1 WHERE "legs"."id" = 2</em>
    (0.2ms)  <em>UPDATE "legs" SET "dog_id" = 1 WHERE "legs"."id" = 9</em>
    (0.6ms)  COMMIT
@@ -785,6 +842,14 @@ Dog.transaction do
 end
 </code></pre>
 
+<pre class="fragment"><code clss="no-highlight"># Running tests:
+
+.
+
+Finished tests in 2.527906s, 0.3956 tests/s, 0.7912 assertions/s.
+
+1 tests, 2 assertions, 0 failures, 0 errors, 0 skips
+</code></pre>
 </section>
 <!--     WTF Associations - DIY --><section>
 
@@ -815,6 +880,28 @@ if legless
   <em>Leg.update_all( { :dog_id => nil },</em>
     <em>{ :id => Leg.where(:dog_id => legless.id).order(:id).pluck(:id)[0..-5] })</em>
 end
+</code></pre>
+<pre class="fragment subst"><code class="ruby" data-noescape>headless = Dog.includes(:head).reject(&:head).first
+if headless
+  headless.create_head
+  Head.update_all( { :dog_id => nil },
+    { :id => Head.where(:dog_id => headless.id).<em>order(:id)</em>.pluck(:id)<em>[0..-2]</em> })
+end
+legless = Dog.includes(:legs).select{|d| d.legs.empty?}.first
+if legless
+  legless.legs = 4.times.map{ Leg.create }
+  Leg.update_all( { :dog_id => nil },
+    { :id => Leg.where(:dog_id => legless.id).<em>order(:id)</em>.pluck(:id)<em>[0..-5]</em> })
+end
+</code></pre>
+
+<pre class="fragment"><code clss="no-highlight"># Running tests:
+
+.
+
+Finished tests in 2.957711s, 0.3956 tests/s, 0.7912 assertions/s.
+
+1 tests, 2 assertions, 0 failures, 0 errors, 0 skips
 </code></pre>
 
 </section>
@@ -1065,8 +1152,8 @@ http://www.flickr.com/photos/scfiasco/4490322916/
   <li>David Heinemeier Hansson - http://david.heinemeierhansson.com/2012/rails-is-omakase.html</li>
   <li>Harold Brown - http://www.foreignaffairs.com/articles/40540/harold-brown/is-sdi-technically-feasible</li>
 
-<li>Images:</li>
-<ul>
+  <li>Images:</li>
+  <ul>
   <li>Garrett Fitzgerald - http://commons.wikimedia.org/wiki/File:SeattleMonorailAccident.jpg</li>
   <li>SoRah42 - http://sorah42.deviantart.com/art/Unique-187278898</li>
   <li>http://commons.wikimedia.org/wiki/File:GuateQuake1976BentRailsA.jpg</li>
@@ -1085,8 +1172,8 @@ http://www.flickr.com/photos/scfiasco/4490322916/
   <li>Bhanutpt - http://commons.wikimedia.org/wiki/File:Fast_Moving_Train_India.jpg</li>
   <li>Chris Updegrave - http://www.flickr.com/photos/cupdegrave/2253462031/</li>
   <li>SCFiasco - http://www.flickr.com/photos/scfiasco/4490322916/</li>
+  </ul>
 </ul>
-
 
 </section>
 
@@ -1117,9 +1204,9 @@ http://www.flickr.com/photos/scfiasco/4490322916/
           { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
           { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
           { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
-          { src: 'lib/js/fullscreen-img.js' }
+          { src: 'lib/js/fullscreen-img.js' },
 
-					// { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+					{ src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
 				]
 			});
       Reveal.addEventListener( 'fragmentshown', function( event ) {

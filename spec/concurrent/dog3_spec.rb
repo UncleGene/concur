@@ -9,7 +9,7 @@ describe Dog do
   end
 
   it 'dog should be normal' do
-    200.times{ Dog.create }
+    20.times{ Dog.create }
     concurrently 20 do
       begin
         headless = Dog.includes(:head).reject(&:head).first
@@ -33,7 +33,7 @@ describe Dog do
         reverse.
         map{ |(heads, legs, count)| "#{pz(count, 'dog')} with #{pz(heads, 'head')} and #{pz(legs, 'leg')}"}.
         join(', ').
-        must_equal "200 dogs with 1 head and 4 legs"
+        must_equal "20 dogs with 1 head and 4 legs"
   end
 
   def pz(n, str)
