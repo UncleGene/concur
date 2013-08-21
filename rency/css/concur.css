@@ -25,10 +25,6 @@
   display: inherit;
 }
 
-.reveal pre.small {
-  font-size: 0.5em;
-}
-
 .reveal em {
   font-style: normal;
   background-color: #ff0;
@@ -50,12 +46,20 @@
   font-size: 100%;
 }
 
-/* override */
 .reveal pre {
-  white-space: pre-wrap;       /* css-3 */
-  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-  white-space: -pre-wrap;      /* Opera 4-6 */
-  white-space: -o-pre-wrap;    /* Opera 7 */
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
   word-wrap: break-word;
 }
 
+.reveal pre.w50 {
+  width: 50%;
+}
+.reveal pre.w80 {
+  width: 80%;
+}
+.reveal pre.w100 {
+  width: 100%;
+}

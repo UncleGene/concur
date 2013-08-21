@@ -54,15 +54,8 @@
         <!--   concurrency definitions --><section>
 
           con·cur·ren·cy
-          <pre class="fragment">
-  Definition of CONCURRENCE
-  1 a : the simultaneous occurrence of events or circumstances
-    b : the meeting of concurrent lines in a point
-  2 a : agreement or union in action : cooperation
-    b (1) : agreement in opinion or design (2) : consent
-  3 : a coincidence of equal powers in law</pre>
 
-          <pre class="fragment subst">
+          <pre class="fragment w80">
   <em>Definition of CONCURRENCE</em>
   1 a : the simultaneous occurrence of events or circumstances
     b : the meeting of concurrent lines in a point
@@ -75,29 +68,11 @@
             are executing simultaneously, and potentially interacting with each other
           </blockquote>
 
-          <pre class="fragment">
+          <pre class="fragment w50">
 Synonyms
-  <b>coexistence, coincidence, concurrence</b>
+  <em>coexistence, coincidence, concurrence</em>
 Antonyms
-  <b>conflict, disagreement, dissensus</b></pre>
-
-        </section>
-        <!--   vocabulary --><section>
-
-          <h2>Vocabulary</h2>
-
-          <ul>
-            <li class="fragment"><b>Concurrency:</b>
-              <span class="fragment">Concurrency Problems [conflict, disagreement, dissensus]</span></li>
-            <li class="fragment"><b>WTH:</b>
-              <span class="fragment">Why Things Happen</span></li>
-            <li class="fragment"><b>WTF</b>
-              <ol>
-                <li class="fragment">Way[s] To Fix</li>
-                <li class="fragment">Why This Framework [did not do this for me]?</small></li>
-              </ol>
-            </li>
-          </ul>
+  <em>conflict, disagreement, dissensus</em></pre>
 
         </section>
         <!--   quiz --><section>
@@ -121,9 +96,9 @@ Antonyms
           -->
 
         </section>
-        <!--   Concurrency WTH --><section>
+        <!--   Concurrency why --><section>
 
-          <h2>Concurrency WTH</h2>
+          <h2>Why?</h2>
 
         </section>
         <!--     development --><section>
@@ -171,7 +146,7 @@ Antonyms
             <pre><code data-trim>
 test:
   adapter: postgresql  # mysql2
-  database: concur_test
+  database: your_db_test
             </code></pre>
           </div>
           <div class="fragment">
@@ -972,7 +947,7 @@ Dog.transaction do
   legless && legless.legs = 4.times.map{ Leg.create }
 end
           </code></pre>
-          <pre class="fragment subst"><code class="ruby" data-noescape data-trim>
+          <pre class="fragment subst" data-fragment-index="4"><code class="ruby" data-noescape data-trim>
 headless, legless = nil, nil
 Dog.transaction do
   headless = <em>Dog.lock.includes(:head)</em>.reject(&:head).first
@@ -984,7 +959,7 @@ Dog.transaction do
 end
           </code></pre>
 
-          <pre class="fragment"><code clss="no-highlight" data-trim>
+          <pre class="fragment" data-fragment-index="1"><code clss="no-highlight" data-trim>
 # Running tests:
 
 .
@@ -993,6 +968,17 @@ Finished tests in 2.527906s, 0.3956 tests/s, 0.7912 assertions/s.
 
 1 tests, 2 assertions, 0 failures, 0 errors, 0 skips
           </code></pre>
+          <pre class="fragment subst" data-fragment-index="2"><code class="sql" data-trim>
+> Dog.lock.includes(:head).reject(&:head).first
+  Dog Load (1.1ms)  SELECT "dogs".* FROM "dogs" FOR UPDATE
+  Head Load (0.3ms)  SELECT "heads".* FROM "heads" WHERE "heads"."dog_id" IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
+          </code></pre>
+          <pre class="fragment subst" data-fragment-index="3"><code class="sql" data-trim data-noescape>
+> Dog.lock.includes(:head).reject(&:head).first
+  Dog Load (1.1ms)  <em>SELECT "dogs".* FROM "dogs" FOR UPDATE</em>
+  Head Load (0.3ms)  SELECT "heads".* FROM "heads" WHERE "heads"."dog_id" IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
+          </code></pre>
+
         </section>
         <!--     WTF Associations - DIY --><section>
 
@@ -1127,7 +1113,7 @@ end
           <h2>WTF remove_column</h2>
 
           <ul>
-            <pre class="fragment"><code class="ruby" data-trim data-noescape>
+            <pre class="fragment" style="width:100%;"><code class="ruby" data-trim data-noescape>
 class ExtraColumn < ActiveRecord::Base
   def self.columns
     @my_columns ||= super.reject{&nbsp;|c|
