@@ -3,6 +3,6 @@ class CreateMysqlSafeNumber < ActiveRecord::Migration
     create_table :mysql_safe_numbers do |t|
       t.integer :value
     end
-    add_index :mysql_safe_numbers, :value, :unique => true
+    add_index :mysql_safe_numbers, :value, unique: true
   end
 end

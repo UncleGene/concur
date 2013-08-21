@@ -24,7 +24,7 @@ describe Dog do
       end while headless || legless
     end
 
-    Dog.all.group_by{ |dog| [ Head.where(:dog_id => dog.id).count, dog.legs.count ] }.
+    Dog.all.group_by{ |dog| [ Head.where(dog_id: dog.id).count, dog.legs.count ] }.
         map{ |k, v| [k[0], k[1], v.size] }.
         sort_by(&:last).
         reverse.
