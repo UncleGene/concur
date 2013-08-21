@@ -448,7 +448,7 @@ describe ValidatedNumber do
   it 'should have unique values' do
     concurrently do
       10.times do
-        ValidatedNumber.create{ |r| r.value = ValidatedNumber.count }
+        ValidatedNumber.create{|r| r.value = ValidatedNumber.count}
       end
     end
     unique = ValidatedNumber.select("distinct value").count
