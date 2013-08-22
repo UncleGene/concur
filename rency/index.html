@@ -37,7 +37,7 @@
 
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
-        <!-- title --><section>
+        <!-- Rails: Shadow Facets of Concurrency --><section>
 
           <h2>Rails: Shadow Facets of Concurrency</h2>
 
@@ -49,11 +49,20 @@
               <a href="http://twitter.com/UncleGene">@UncleGene</a>
             </p>
           </small>
-
+          <br />
+          <br />
+          <br />
+          <br />
+          <pre align="right" class="w65"><code class="ruby" data-trim data-noescape>
+audience.<em>except</em>(&:can_see_this).each do |person|
+  # Please!
+  person.move(:closer)
+end
+          </code></pre>
         </section>
-        <!--   concurrency definitions --><section>
+        <!--   con·cur·ren·cy --><section>
 
-          con·cur·ren·cy
+          <h2>con·cur·ren·cy</h2>
 
           <pre class="fragment w80">
   <em>Definition of CONCURRENCE</em>
@@ -75,11 +84,11 @@ Antonyms
   <em>conflict, disagreement, dissensus</em></pre>
 
         </section>
-        <!--   quiz --><section>
+        <!--   You may not worry about concurrency if: --><section>
 
-          <h3>
+          <h2>
             You may not worry about concurrency if:
-          </h3>
+          </h2>
           <ul>
             <li class="fragment">You use Rails</li>
             <li class="fragment">Your application is single-threaded</li>
@@ -96,20 +105,20 @@ Antonyms
           -->
 
         </section>
-        <!--   Concurrency why --><section>
+        <!--   Why? --><section>
 
           <h2>Why?</h2>
 
         </section>
-        <!--     development --><section>
+        <!--     RAILS_ENV=development --><section>
 
-          <h3>Development Environment</h3>
+          <h3>RAILS_ENV=development</h3>
           <img class="small" src="images/box_one_rails_one_db.png">
 
         </section>
-        <!--     production --><section>
+        <!--     RAILS_ENV=production --><section>
 
-          <h3>Production Environment</h3>
+          <h3>RAILS_ENV=production</h3>
           <div>
             <img class="small" src="images/box_many_rails.png">
             <img class="small" src="images/box_one_db.png">
@@ -138,9 +147,9 @@ Antonyms
           <h3>Rails and Concurrency</h3>
 
         </section>
-        <!--     concurrent testing - abridged --><section>
+        <!--     RAILS_ENV=test --><section>
 
-          <h3>Concurrent Testing</h3>
+          <h3>RAILS_ENV=test</h3>
           <div class="fragment">
             database.yml:
             <pre><code data-trim>
@@ -183,9 +192,9 @@ end
             </code></pre>
           </div>
         </section>
-        <!--     concurrent testing - complete --><section>
+        <!--     RAILS_ENV=test --><section>
 
-          <h3>Concurrent Testing</h3>
+          <h3>RAILS_ENV=test</h3>
           <pre><code class="ruby" data-trim>
 def concurrently processes = 10
   ActiveRecord::Base.remove_connection
@@ -247,7 +256,7 @@ end
           </code></pre>
 
         </section>
-        <!--   Facet 1: Unique --><section>
+        <!--   Facet #1: One and Only --><section>
 
           <h2>Facet #1: One and Only</h2>
           <img src="images/unique_by_sorah42-d33i1bm.jpg">
@@ -258,9 +267,9 @@ end
 
 
         </section>
-        <!--     naive first_or_create --><section>
+        <!--     first_or_create --><section>
 
-          <h2>first_or_create</h2>
+          <h3>first_or_create</h3>
           <pre class="fragment"><code class="ruby" data-trim>
 class Number < ActiveRecord::Base
   # t.integer :value
@@ -321,9 +330,9 @@ Expected: 49
           -->
 
         </section>
-        <!--     find_or_create_by WTH --><section>
+        <!--     first_or_create.inspect --><section>
 
-          <h2>find_or_create_by WTH</h2>
+          <h3>first_or_create.inspect</h3>
           <div>
             <pre class="fragment" data-fragment-index="1"><code class="sql" data-trim>
 > Number.where(value: 3).first_or_create
@@ -410,7 +419,7 @@ Expected: 49
         </section>
         <!--     validates :uniquiness --><section>
 
-            <h2>validates :uniquiness</h2>
+            <h3>validates :uniquiness</h3>
 
             <pre class="fragment"><code class="ruby" data-trim>
 class ValidatedNumber < ActiveRecord::Base
@@ -465,9 +474,9 @@ Expected: 37
             -->
 
         </section>
-        <!--     add db constraint --><section>
+        <!--     unique.fix :db  --><section>
 
-          <h2>WTF uniquiness</h2>
+          <h3>unique.fix :db </h3>
 
           <pre class="fragment"><code class="ruby" data-trim>
 class CreateConstrainedNumbers < ActiveRecord::Migration
@@ -543,9 +552,9 @@ DETAIL:  Key (value)=(0) already exists.
           -->
 
         </section>
-        <!--     catch RecordNotFound --><section>
+        <!--     unique.fix :db, diy: true --><section>
 
-          <h2>WTF uniquiness #2</h2>
+          <h3>unique.fix :db, diy: true</h3>
 
           <pre class="fragment"><code class="ruby" data-trim>
 class SafeNumber < ActiveRecord::Base
@@ -597,9 +606,9 @@ F
           -->
 
         </section>
-        <!--     MySQL uniquiness --><section>
+        <!--     unique.fix :db, diy: true, mysql: true --><section>
 
-          <h2>WTF uniquiness - MySQL</h2>
+          <h3>unique.fix :db, diy: true, mysql: true</h3>
 
           <pre class="fragment"><code class="ruby" data-trim>
 def self.extra_awesome_creation(val)
@@ -644,14 +653,15 @@ Finished tests in 3.234423s, 0.3092 tests/s, 0.6183 assertions/s.
           -->
 
         </section>
-        <!--   Facet 2: Associations --><section>
+        <!--   Facet #2: I Can Haz One or Many? --><section>
 
           <h2>Facet #2: I Can Haz One or Many?</h2>
-          <p>Guilty by Association</p>
-        </section>
-        <!--     dog with head and legs --><section>
+          <h3>or Guilty by Association</h3>
 
-          <h2>Associations</h2>
+        </section>
+        <!--     class Dog --><section>
+
+          <h3>class Dog</h3>
 
           <pre class="fragment"><code class="ruby" data-trim>
 class Dog < ActiveRecord::Base
@@ -671,9 +681,9 @@ end
           </code></pre>
 
         </section>
-        <!--     dog creation code --><section>
+        <!--     Dog.build --><section>
 
-          <h2>Let Make Some Dogs</h2>
+          <h3>Dog.build</h3>
 
           <pre><code class="ruby" data-trim>
 20.times{ Dog.create }
@@ -732,9 +742,9 @@ end
           </code></pre>
 
         </section>
-        <!--     many dogs with many heads --><section>
+        <!--     assert_sanity --><section>
 
-          <h2>And See What We Get</h2>
+          <h3>assert_sanity</h3>
 
           <pre><code class="ruby" data-trim>
 pretty_report(Dog.all).must_equal "20 dogs with 1 head and 4 legs"
@@ -758,9 +768,9 @@ pretty_report(Dog.all).must_equal "20 dogs with 1 head and 4 legs"
           -->
 
         </section>
-        <!--     WTH heads --><section>
+        <!--     dog.head.inspect --><section>
 
-          <h2>WTH with Heads</h2>
+          <h3>dog.head.inspect</h3>
 
           <pre class="fragment"><code class="sql" data-trim>
 > Dog.first.create_head
@@ -827,9 +837,9 @@ pretty_report(Dog.all).must_equal "20 dogs with 1 head and 4 legs"
           <img src="images/three_heads.jpg">
 
         </section>
-        <!--     WTH legs --><section>
+        <!--     dog.legs.inspect --><section>
 
-          <h2>WTH with Legs</h2>
+          <h3>dog.legs.inspect</h3>
 
           <pre class="fragment"><code class="sql" data-trim>
 >   Dog.first.legs = Leg.all.sample(4)
@@ -874,16 +884,16 @@ pretty_report(Dog.all).must_equal "20 dogs with 1 head and 4 legs"
           <img src="images/many_legs.jpg">
 
         </section>
-        <!--     WTF has_one --><section>
+        <!--     dog.head.fix --><section>
 
-          <h2>WTF has_one Association</h2>
+          <h2>dog.head.fix</h2>
 
-          <span class="fragment">See WTF uniquiness</span>
+          <pre class="fragment"><code>unique.fix :db, diy: true, mysql: mysql?</code></pre>
 
         </section>
-        <!--     WTF Associations - lock! --><section>
+        <!--     dog.fix :db --><section>
 
-          <h2>WTF Associations</h2>
+          <h3>dog.fix :db</h3>
 
           <pre class="fragment"><code class="ruby" data-trim>
 headless = Dog.includes(:head).where(heads: {dog_id: nil}).first
@@ -932,9 +942,9 @@ end
           -->
 
         </section>
-        <!--     WTF Associations select for update --><section>
+        <!--     dog.fix :db, force(:brute) --><section>
 
-          <h2>WTF Associations #2</h2>
+          <h3>dog.fix :db, force(:brute)</h3>
 
           <pre class="fragment"><code class="ruby" data-trim>
 headless, legless = nil, nil
@@ -968,7 +978,7 @@ Finished tests in 2.527906s, 0.3956 tests/s, 0.7912 assertions/s.
 
 1 tests, 2 assertions, 0 failures, 0 errors, 0 skips
           </code></pre>
-          <pre class="fragment subst" data-fragment-index="2"><code class="sql" data-trim>
+          <pre class="fragment" data-fragment-index="2"><code class="sql" data-trim>
 > Dog.lock.includes(:head).reject(&:head).first
   Dog Load (1.1ms)  SELECT "dogs".* FROM "dogs" FOR UPDATE
   Head Load (0.3ms)  SELECT "heads".* FROM "heads" WHERE "heads"."dog_id" IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
@@ -980,9 +990,9 @@ Finished tests in 2.527906s, 0.3956 tests/s, 0.7912 assertions/s.
           </code></pre>
 
         </section>
-        <!--     WTF Associations - DIY --><section>
+        <!--     dog.fix :diy --><section>
 
-          <h2>WTF Associations - DIY</h2>
+          <h3>dog.fix :diy</h3>
 
           <pre class="fragment"><code class="ruby" data-trim>
 headless = Dog.includes(:head).where(heads: {dog_id: nil}).first
@@ -1043,9 +1053,9 @@ Finished tests in 2.957711s, 0.3956 tests/s, 0.7912 assertions/s.
           <h2>Facet #3: Emigration</h2>
 
         </section>
-        <!--     DB migrations --><section>
+        <!--     db:migrate --><section>
 
-          <h2>DB Migrations</h2>
+          <h3>db:migrate</h3>
           <ul>
             <li class="fragment">Add table - OK</li>
             <li class="fragment">Add column - OK</li>
@@ -1054,9 +1064,9 @@ Finished tests in 2.957711s, 0.3956 tests/s, 0.7912 assertions/s.
           </ul>
 
         </section>
-        <!--     remove_column errors --><section>
+        <!--     try :remove_column --><section>
 
-          <h2>DB Migrations</h2>
+          <h3>try :remove_column</h3>
 
           <pre class="fragment"><code class="ruby" data-trim>
 remove_column :extra_columns, :extra
@@ -1089,9 +1099,9 @@ ActiveRecord::StatementInvalid: PG::Error: ERROR:  column "extra" of relation "e
           -->
 
         </section>
-        <!--     WTH with remove_column --><section>
+        <!--     remove_column.inspect --><section>
 
-          <h2>WTH with remove_column</h2>
+          <h3>remove_column.inspect</h3>
 
           <pre class="fragment"><code class="ruby" data-trim>
 def columns
@@ -1108,9 +1118,9 @@ end
           </ul>
 
         </section>
-        <!--     WTF remove_column --><section>
+        <!--     remove_column.fix --><section>
 
-          <h2>WTF remove_column</h2>
+          <h3>remove_column.fix</h3>
 
           <ul>
             <pre class="fragment" style="width:100%;"><code class="ruby" data-trim data-noescape>
@@ -1131,9 +1141,9 @@ remove_column :extra_columns, :extra
           </ul>
 
         </section>
-        <!--     Rails 3.1 WTF --><section>
+        <!--     remove_column.fix :rails_3_1 --><section>
 
-          <h2>Rails 3.1 "WTF" remove_column</h2>
+          <h3>remove_column.fix :rails_3_1</h3>
 
           <img src="images/3.1.jpg">
 

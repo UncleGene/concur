@@ -10,7 +10,7 @@ describe Dog do
 
   it 'dog should be normal' do
     20.times{ Dog.create }
-    concurrently 20 do
+    concurrently do
       begin
         headless, legless = nil, nil
         Dog.transaction do

@@ -57,6 +57,9 @@
 .reveal pre.w50 {
   width: 50%;
 }
+.reveal pre.w65 {
+  width: 65%;
+}
 .reveal pre.w80 {
   width: 80%;
 }

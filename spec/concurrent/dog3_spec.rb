@@ -10,7 +10,7 @@ describe Dog do
 
   it 'dog should be normal' do
     50.times{ Dog.create }
-    concurrently 20 do
+    concurrently do
       begin
         headless = Dog.includes(:head).reject(&:head).first
         if headless
