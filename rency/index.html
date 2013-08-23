@@ -38,7 +38,6 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
         <!-- Rails: Shadow Facets of Concurrency --><section>
-
           <h2>Rails: Shadow Facets of Concurrency</h2>
 
           <small>
@@ -61,23 +60,16 @@ end
           </code></pre>
         </section>
         <!--   con·cur·ren·cy --><section>
-
           <h2>con·cur·ren·cy</h2>
 
-          <pre class="fragment w80">
-  <em>Definition of CONCURRENCE</em>
-  1 a : the simultaneous occurrence of events or circumstances
-    b : the meeting of concurrent lines in a point
-  2 a : agreement or union in action : cooperation
-    b (1) : agreement in opinion or design (2) : consent
-  3 : a coincidence of equal powers in law</pre>
+          <img src="images/concurrency.jpg" class="fragment">
 
           <blockquote class="fragment" cite="http://en.wikipedia.org/wiki/Concurrency_(computer_science)">
             In computer science, concurrency is a property of systems in which several computations
             are executing simultaneously, and potentially interacting with each other
           </blockquote>
 
-          <pre class="fragment w50">
+          <pre class="fragment w55">
 Synonyms
   <em>coexistence, coincidence, concurrence</em>
 Antonyms
@@ -152,7 +144,7 @@ Antonyms
           <h3>RAILS_ENV=test</h3>
           <div class="fragment">
             database.yml:
-            <pre><code data-trim>
+            <pre class="w55"><code data-trim>
 test:
   adapter: postgresql  # mysql2
   database: your_db_test
@@ -160,7 +152,7 @@ test:
           </div>
           <div class="fragment">
             test_helper.rb (spec_helper.rb):
-            <pre><code class="ruby" data-trim>
+            <pre class="w80"><code class="ruby" data-trim>
 def concurrently processes = 10
   processes.times do
     fork do
@@ -170,7 +162,7 @@ def concurrently processes = 10
   assert Process.waitall.map(&:last).all? &:success?
 end
             </code></pre>
-            <pre class="fragment subst"><code class="ruby" data-noescape data-trim>
+            <pre class="fragment w80 subst"><code class="ruby" data-noescape data-trim>
 def concurrently processes = 10
   processes.times do
     <em>fork do</em>
@@ -180,7 +172,7 @@ def concurrently processes = 10
   assert Process.waitall.map(&:last).all? &:success?
 end
             </code></pre>
-            <pre class="fragment subst"><code class="ruby" data-noescape data-trim>
+            <pre class="fragment w80 subst"><code class="ruby" data-noescape data-trim>
 def concurrently processes = 10
   processes.times do
     fork do
@@ -195,7 +187,7 @@ end
         <!--     RAILS_ENV=test --><section>
 
           <h3>RAILS_ENV=test</h3>
-          <pre><code class="ruby" data-trim>
+          <pre class="w80"><code class="ruby" data-trim>
 def concurrently processes = 10
   ActiveRecord::Base.remove_connection
   processes.times do
@@ -215,7 +207,7 @@ def concurrently processes = 10
 end  
           </code></pre>
 
-          <pre class="fragment subst"><code class="ruby" data-noescape data-trim>
+          <pre class="fragment w80 subst"><code class="ruby" data-noescape data-trim>
 def concurrently processes = 10
   <em>ActiveRecord::Base.remove_connection</em>
   processes.times do
@@ -235,7 +227,7 @@ def concurrently processes = 10
 end
           </code></pre>
 
-          <pre class="fragment subst"><code class="ruby" data-noescape data-trim>
+          <pre class="fragment w80 subst"><code class="ruby" data-noescape data-trim>
 def concurrently processes = 10
   ActiveRecord::Base.remove_connection
   processes.times do
@@ -423,7 +415,7 @@ Expected: 49
 
             <pre class="fragment"><code class="ruby" data-trim>
 class ValidatedNumber < ActiveRecord::Base
-    validates :value, uniqueness: true
+  validates :value, uniqueness: true
 end
             </code></pre>
 
@@ -663,14 +655,14 @@ Finished tests in 3.234423s, 0.3092 tests/s, 0.6183 assertions/s.
 
           <h3>class Dog</h3>
 
-          <pre class="fragment"><code class="ruby" data-trim>
+          <pre class="fragment w55"><code class="ruby" data-trim>
 class Dog < ActiveRecord::Base
   has_one :head
   has_many :legs
 end
           </code></pre>
 
-          <pre class="fragment"><code class="ruby" data-trim>
+          <pre class="fragment w55"><code class="ruby" data-trim>
 class Head < ActiveRecord::Base
   belongs_to :dog
 end
@@ -994,7 +986,7 @@ Finished tests in 2.527906s, 0.3956 tests/s, 0.7912 assertions/s.
 
           <h3>dog.fix :diy</h3>
 
-          <pre class="fragment"><code class="ruby" data-trim>
+          <pre class="fragment w100"><code class="ruby" data-trim>
 headless = Dog.includes(:head).where(heads: {dog_id: nil}).first
 if headless
   headless.create_head
@@ -1008,7 +1000,7 @@ if legless
     { id: Leg.where(dog_id: legless.id).order(:id).pluck(:id)[0..-5] })
 end
           </code></pre>
-          <pre class="fragment subst"><code class="ruby" data-noescape data-trim>
+          <pre class="fragment w100 subst"><code class="ruby" data-noescape data-trim>
 headless = Dog.includes(:head).where(heads: {dog_id: nil}).first
 if headless
   headless.create_head
@@ -1022,7 +1014,7 @@ if legless
     <em>{ id: Leg.where(dog_id: legless.id).order(:id).pluck(:id)[0..-5] })</em>
 end
           </code></pre>
-          <pre class="fragment subst"><code class="ruby" data-noescape data-trim>
+          <pre class="fragment w100 subst"><code class="ruby" data-noescape data-trim>
 headless = Dog.includes(:head).where(heads: {dog_id: nil}).first
 if headless
   headless.create_head
@@ -1103,7 +1095,7 @@ ActiveRecord::StatementInvalid: PG::Error: ERROR:  column "extra" of relation "e
 
           <h3>remove_column.inspect</h3>
 
-          <pre class="fragment"><code class="ruby" data-trim>
+          <pre class="fragment w100"><code class="ruby" data-trim>
 def columns
   @columns ||= connection.schema_cache.columns[table_name].map do |col|
     col = col.dup
@@ -1162,50 +1154,65 @@ remove_column :extra_columns, :extra
           <h2>Facet #4: Assets & Liabilities</h2>
 
         </section>
-        <!--     deploy via shutdown --><section>
-          <h2>Deployment</h2>
+        <!--     deploy :shutdown --><section>
+          <h3>deploy :shutdown</h3>
             <span>
-              <img class="small fragment fade-out" data-fragment-index="1" src="images/box_many_rails.png">
-              <img class="small fragment fade-out" data-fragment-index="3" src="images/box_many_rails.png">
-              <img class="small fragment fade-out" data-fragment-index="5" src="images/box_many_rails.png">
-              <img class="small fragment fade-out" data-fragment-index="4" src="images/box_many_rails.png">
-              <img class="small fragment fade-out" data-fragment-index="2" src="images/box_many_rails.png">
+              <img class="small" src="images/box_many_rails.png">
+              <img class="small" src="images/box_many_rails.png">
             </span>
-            <span class="fragment subst" data-fragment-index="6">
-              <img class="small fragment fade-in" data-fragment-index="7" src="images/box_many_rails_g.png">
-              <img class="small fragment fade-in" data-fragment-index="9" src="images/box_many_rails_g.png">
+            <span class="fragment subst">
+              <img class="small" src="images/box.png">
+              <img class="small" src="images/box_many_rails.png">
+            </span>
+            <span class="fragment subst">
+              <img class="small" src="images/box.png">
+              <img class="small" src="images/box.png">
+            </span>
+            <span class="fragment subst">
+              <img class="small" src="images/box.png">
               <img class="small" src="images/box_many_rails_g.png">
-              <img class="small fragment fade-in" data-fragment-index="8" src="images/box_many_rails_g.png">
-              <img class="small fragment fade-in" data-fragment-index="10" src="images/box_many_rails_g.png">
-            </span>
-        </section>
-        <!--     rolling deploy assets WTH --><section>
-          <h2>Rolling Deployment</h2>
-            <span>
-              <img class="small" src="images/box_many_rails.png">
-              <img class="small" src="images/box_many_rails.png">
-              <img class="small" src="images/box_many_rails.png">
-              <span>
-                <img class="small" src="images/box_many_rails.png">
-                <img class="small" src="images/box_many_rails.png">
-                <img class="fragment small subst" src="images/box_many_rails_g.png">
-              </span>
-              <span class="fragment subst">
-                <img class="small" src="images/box_many_rails_g.png">
-                <img class="small" src="images/box_many_rails_g.png">
-              </span>
             </span>
             <span class="fragment subst">
               <img class="small" src="images/box_many_rails_g.png">
               <img class="small" src="images/box_many_rails_g.png">
-              <img class="small" src="images/box_many_rails_g.png">
-              <img class="small" src="images/box_many_rails_g.png">
-              <img class="small" src="images/box_many_rails_g.png">
             </span>
-
         </section>
-        <!--     WTF with assets --><section>
-          <h2>WTF Assets</h2>
+        <!--     deploy :rolling_swap --><section>
+          <h3>deploy :rolling_swap</h3>
+            <span>
+              <img class="small" src="images/box_many_rails.png">
+              <img class="small" src="images/box_many_rails.png">
+            </span>
+            <span class="fragment subst">
+              <img class="small" src="images/box_many_rails_mix.png">
+              <img class="small" src="images/box_many_rails.png">
+            </span>
+            <span class="fragment subst">
+              <img class="small" src="images/box_many_rails_g.png">
+              <img class="small" src="images/box_many_rails.png">
+            </span>
+            <span class="fragment subst">
+              <img class="small" src="images/box_many_rails_g.png">
+              <img class="small" src="images/box_many_rails_mix.png">
+            </span>
+        </section>
+        <!--     deploy :rolling_shutdown --><section>
+          <h3>deploy :rolling_shutdown</h3>
+            <span>
+              <img class="small" src="images/box_many_rails.png">
+              <img class="small" src="images/box_many_rails.png">
+            </span>
+            <span class="fragment subst">
+              <img class="small" src="images/box.png">
+              <img class="small" src="images/box_many_rails.png">
+            </span>
+            <span class="fragment subst">
+              <img class="small" src="images/box_many_rails_g.png">
+              <img class="small" src="images/box_many_rails.png">
+            </span>
+        </section>
+        <!--     rake assets:fix --><section>
+          <h3>rake assets:fix</h3>
           <pre class="fragment"><code class="ruby" data-trim>
 config.action_controller.asset_host = "//your.super.asset.host"
           </code></pre></li>
@@ -1227,8 +1234,8 @@ config.assets.digest = true
           -->
 
         </section>
-        <!--   WTH with Rails --><section>
-          <h2>WTH with Rails</h2>
+        <!--   Rails.why? --><section>
+          <h2>Rails.why?</h2>
           <div class="fragment">
             <blockquote cite="http://david.heinemeierhansson.com/2012/rails-is-omakase.html">
               Rails is omakase. A team of chefs picked out the ingredients, designed the APIs, and arranged the order
@@ -1248,7 +1255,7 @@ config.assets.digest = true
 
         </section>
         <!--   Development and Deployment --><section>
-          <h2>Development and Deployment</h2>
+          <h3>Development and Deployment</h3>
           <div class="fragment">
             <blockquote cite="http://david.heinemeierhansson.com/2012/rails-is-omakase.html">
               Concurrency of development with deployment . . . has almost always proven counterproductive
@@ -1258,7 +1265,7 @@ config.assets.digest = true
 
         </section>
         <!--     Call for volunteers --><section>
-          <h2>Development and Deployment</h2>
+          <h3>Development and Deployment</h3>
           <img class="small" src="images/box_many_rails_g.png">
           <img class="small" src="images/box_many_rails.png">
           <img class="small" src="images/box_many_rails.png">
@@ -1275,8 +1282,8 @@ config.assets.digest = true
           -->
 
         </section>
-        <!--     WTF Development and Deployment --><section>
-          <h2>WTF Development and Deployment</h2>
+        <!--     changed_feature.deploy! --><section>
+          <h2>changed_feature.deploy!</h2>
           <ol>
             <li class="fragment">Teach old dog new tricks (but do not show them)</li>
             <li class="fragment">Teach new dog old tricks</li>
@@ -1331,7 +1338,7 @@ config.assets.digest = true
           <h4>Credits</h4>
           <ul class="tiny">
             <li>Hakim El Hattab - Reveal.js, http://lab.hakim.se/reveal-js/#/
-            <li>Meriam-Webster - Merriam-Webster.com. 2013. http://www.merriam-webster.com (5 Aug 2013)</li>
+            <li>"Concurrency." Merriam-Webster.com. Merriam-Webster, n.d. Web. 23 Aug. 2013. [http://www.merriam-webster.com/dictionary/concurrency]</li>
             <li>Wikipedia - http://en.wikipedia.org/wiki/Concurrency_(computer_science)</li>
             <li>David Heinemeier Hansson - http://david.heinemeierhansson.com/2012/rails-is-omakase.html</li>
             <li>Harold Brown - http://www.foreignaffairs.com/articles/40540/harold-brown/is-sdi-technically-feasible</li>
