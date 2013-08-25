@@ -550,8 +550,8 @@ DETAIL:  Key (value)=(0) already exists.
 
           <pre class="fragment"><code class="ruby" data-trim>
 class SafeNumber < ActiveRecord::Base
-  def self.awesome_creation(val)
-    where(value: val).first_or_create
+  def self.first_or_create_where(*args)
+    where(*args).first_or_create
   rescue ActiveRecord::RecordNotUnique
     retry
   end
@@ -559,8 +559,8 @@ end
           </code></pre>
           <pre class="fragment subst"><code class="ruby" data-noescape data-trim>
 class SafeNumber < ActiveRecord::Base
-  def self.awesome_creation(val)
-    where(value: val).first_or_create
+  def self.first_or_create_where(*args)
+    where(*args).first_or_create
   <em>rescue ActiveRecord::RecordNotUnique</em>
     <em>retry</em>
   end

@@ -8,7 +8,7 @@ describe SafeNumber do
   it 'should have unique values for find_or_create' do
     concurrently 20 do
       50.times do 
-        SafeNumber.find_or_create(SafeNumber.count)
+        SafeNumber.first_or_create_where(value: SafeNumber.count)
       end
     end
     SafeNumber.count.must_equal SafeNumber.select('distinct value').count

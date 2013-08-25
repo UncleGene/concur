@@ -206,6 +206,31 @@ helper method.
 
 ### unique.fix :db, diy: true
 
+Instead of direct usage of first_or_create we'll need to wrap it in a custom method that
+handles RecordNotFound exception by simply retrying the main flow.
+
+Let run the test and make sure that everything is fine. And it is indeed.
+
+Or not...
+
+This works fine for Postgres. If we run the same code on MySQL, we can get a nasty surprise.
+
+&#9679;
+
+This surprise is a multi-layer one: first, how MySQL manages to get to a deadlock performing
+the same operation? And second, why the adapter maps this to StatementInvalid exception -
+one that we can't blindly catch, as it can indicate real query problems.
+
+&#9679; [pic]
+
+So our solution becomes not as elegant as before
+
+### unique.fix :db, diy: true, mysql: true
+
+- We have a second rescue block in our method
+- And it looks inside the message to see whether to retry or rethrow the exception
+- Finally we get a hack that works fine on both Postgres and Mysql
+
 
 
 
