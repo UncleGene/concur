@@ -2,23 +2,19 @@
 
 Hello everybody!
 
-My name is Eugene (if you try to pronounce my last name, most of you will
-sound as funny to me, as I'll do to you during this talk),
-and today we are going to talk about &#9679;
+My name is Eugene, and today we are going to talk about
 
 ## con·cur·ren·cy
-... concurrency
 
 Concurrency is so mysterious, that most online dictionaries do not even try to define it.
 
-Meriam-Webster at least gives you a tip where to look &#9679;
+* Meriam-Webster at least gives you a tip where to look
 
-What is a little closer to home, wikipedia gives a CS-specific definition: &#9679;
-
-concurrency is a property of systems in which several computations
+* What is a little closer to home, wikipedia gives a CS-specific definition: 
+  > concurrency is a property of systems in which several computations
 are executing simultaneously, and potentially interacting with each other
 
-If we return back to Meriam-Webster &#9679;, we can see that all synonyms have a positive tinge,
+* If we return back to Meriam-Webster, we can see that all synonyms have a positive tinge,
 and antonyms are pretty negative.
 
 What underlines the mystery of concurrency is that in Software Engineering we gradually
@@ -27,22 +23,19 @@ in a lot of cases we mean concurrency issues or problems.
 
 In this talk I am going to use concurrency almost solely in its inverted (or perverted?) meaning
 
-But let start first with a short quiz &#9679;
+But let start first with a short quiz
 
 ##  You may not worry about concurrency if
 
 Please raise your hand if you agree that you should not care about concurrency if
 
-&#9679; you use rails?
+* you use rails?
+* you use MRI on rails?
+* you use MRI on rails and/or you don't have a lot of visits?
 
-&#9679; you use MRI on rails?
+I can assure you that at least somebody felt safe designing low-traffic single-threaded rails application -
 
-&#9679; you use MRI on rails and/or you don't have a lot of visits?
-
-I can assure you that at least somebody felt safe designing low-traffic single-threaded
-rails application
-
-&#9679; [pic] And reality stuck back!
+* [pic] And reality stuck back!
 
 ## Why?
 
@@ -65,15 +58,15 @@ But as soon as we deploy our application to production environment
 
 We are starting to be exposed to the first aspect of concurrency
 
-&#9679; you have multiple Rails instancies trying to talk to the same database
+- you have multiple Rails instancies trying to talk to the same database
 
-&#9679; and as soon as we start to scale, we have
+- and as soon as we start to scale, we have
 
-&#9679; the aspect of unpredictable routing
+- the aspect of unpredictable routing
 
-&#9679; you never know which host will reply to the request
+  - you never know which host will reply to the request
 
-&#9679; or even in what order your hosts will reply
+  - or even in what order your hosts will reply
 
 ## Part 1. Rails and Concurrency
 
@@ -87,25 +80,22 @@ Just describing shared resource issues is too dry, and we want to be pragmatic i
 our approach - so we need to invest in a mechanism that will allow us to demonstrate
 the problem and to see if our mitigations work.
 
-&#9679; First of all, we need to make sure that we use in test the same database engine
+- First of all, we need to make sure that we use in test the same database engine
 and adaptor as anywhere else. Default sqlite is useless for our purposes.
 But please, PLEASE, make sure that the database name is different!
-
-&#9679; second - we just need to add to our code a helper function that will simulate
+- second - we just need to add to our code a helper function that will simulate
 the multi-process environment
-
-&#9679; here we fork provided block of code to multiple processes
-
-&#9679; and make sure at the end that all processes succeed
+  - we fork provided block of code to multiple processes
+  - and make sure at the end that all processes succeed
 
 ### RAILS_ENV=test #2
 In reality this is a little bit more involved. As we are testing for concurrency, we
 need to handle all shared resources safely ourselves.
 
-&#9679; we need to make sure that each of our processes has its own database connection
+- we need to make sure that each of our processes has its own database connection
 (fork creates an exact copy, so without this all processes will try to se the same connection)
 
-&#9679; and we need to take care of another shared resource, IO.
+- and we need to take care of another shared resource - IO.
 Without this precaution all processes can try to output everything at once,
 and good luck in trying to parse interleaved exception backtraces.
 
@@ -117,71 +107,54 @@ the same VIN?
 
 Rails gives us not even one, but two ways to do this.
 
-And the first of them is ...
+And the first of them is 
 
 ### first_or_create
 
 first_or_create (or its now deprecated twin find_or_create_by)
 
-&#9679; To test this we'll create a simple model Number with a single attribute
+- To test this we'll create a simple model Number with a single attribute
 conveniently called value.
-
-&#9679; and to exercise this approach we have a simple test
-
-&#9679; that creates a number with a value corresponding to current database state.
-
-We want our test processes to collide as much as possible, and Number.count is used
+- and to exercise this approach we have a simple test
+  - that creates a number with a value corresponding to current database state.
+    
+    We want our test processes to collide as much as possible, and Number.count is used
 as a simple synchronization mechanism
 
-&#9679; at the end we check that all values are unique by comparing number of records
+  - at the end we check that all values are unique by comparing number of records
 with number of unique values
 
-Let run this test, and we see that 50 numbers (99 - 49) have non-unique values
+- Let run this test, and we see that 50 numbers (99 - 49) have non-unique values
 
-&#9679; [pic] We got a some crooked rails!
+- [pic] We got a some crooked rails!
 
 ### first_or_create.inspect
 
-Let see what happens. Rails really does what it says - first or create
-
-&#9679; It checks if record exists,
-
-&#9679; and creates a new one if it doesn't
-
-&#9679; second process comes in
-
-&#9679; finds the record and returns it.
-
-&#9679; Everything works fine if these processes come one by one. But what can happen
+- Let see what happens. Rails really does what it says - first or create
+  - It checks if record exists,
+  - and creates a new one if it doesn't
+  - second process comes in
+  - finds the record and returns it.
+- Everything works fine if these processes come one by one. But what can happen
 if they come together?
-
-&#9679; First process: check!
-
-&#9679; Second process: check!
-
-&#9679; First process: I have to create!
-
-&#9679; Second: but I do too!
-
-&#9679; [pic] and we get what we get!
+  - First process: check!
+  - Second process: check!
+  - First process: I have to create!
+  - Second: but I do too!
+- [pic] and we get what we get!
 
 ### validates :uniquiness
 
-Let try the second tool Rails have - uniquiness validation
+The second tool Rails gives us - uniquiness validation
 
-&#9679; We'll use another model that validates the value for uniquiness
-
-&#9679; run practically the same test
-
-&#9679; and get 59 non-unique values
-
-&#9679; because underneath we do exactly the same,
-
-&#9679; just slightly different form of the query
-
-&#9679; [pic] Oops.
-
-BTW, do not use first_or_create and validate uniquiness together. What you get
+- We'll use another model that validates the value for uniquiness
+- run practically the same test
+- and get 59 non-unique values
+- because underneath we do exactly the same,
+  - just slightly different form of the query
+- [pic] Oops.
+ 
+  BTW, do not use first_or_create and validate uniquiness together. What you get
 in this case is that for each record not found by first_or_create,
 uniquiness validation will check again - and you have 2 database queries for the price
 of non-working one.
@@ -191,45 +164,67 @@ of non-working one.
 The way to fix this is to do validation at the only place that knows about all your processes -
 on database level.
 
-&#9679; The most universal way to do this is to add an
+- The most universal way to do this is to add an
+  - unique index on the column.
 
-&#9679; unique index on the column.
+    Unfortunately this is not enough - if you do not change your application code, 
 
-Unfortunately this is not enough - if you do not change your application code, what you get
-
-&#9679; ia a bunch of exceptions;
-
-&#9679; this is the case where you can start appreciating that we "abbreviated" errors  in our
+- what you get ia a bunch of exceptions;
+- this is the case where you can start appreciating that we "abbreviated" errors  in our
 helper method.
-
-&#9679; [pic] so - you have to change your code first to avoid such problems
+- [pic] so - you have to change your code first to avoid such problems
 
 ### unique.fix :db, diy: true
 
-Instead of direct usage of first_or_create we'll need to wrap it in a custom method that
-handles RecordNotFound exception by simply retrying the main flow.
+Instead of direct usage of first_or_create we'll need to
 
-Let run the test and make sure that everything is fine. And it is indeed.
+- wrap it in a custom method that handles RecordNotFound exception
+  - by simply retrying the main flow.
 
-Or not...
+Let run the test and make sure that everything is fine.
 
-This works fine for Postgres. If we run the same code on MySQL, we can get a nasty surprise.
+- And it is indeed.
 
-&#9679;
+  Or not...
 
-This surprise is a multi-layer one: first, how MySQL manages to get to a deadlock performing
-the same operation? And second, why the adapter maps this to StatementInvalid exception -
-one that we can't blindly catch, as it can indicate real query problems.
+  This works fine for Postgres. If we run the same code on MySQL
 
-&#9679; [pic]
+- we can get a nasty surprise. This surprise is a multi-layer one:
+  - first, how MySQL manages to get to a deadlock performing
+    the same operation? And second, why the adapter maps this to StatementInvalid exception -
+    one that we can't blindly catch, as it can indicate real query problems.
 
-So our solution becomes not as elegant as before
+- [pic] So our solution becomes not as elegant as before
 
 ### unique.fix :db, diy: true, mysql: true
 
 - We have a second rescue block in our method
-- And it looks inside the message to see whether to retry or rethrow the exception
+- Where we have to looks inside the message to see whether to retry or rethrow the exception
 - Finally we get a hack that works fine on both Postgres and Mysql
+- [pic] Hurray! We are moving forward!
+
+## Facet #2: I Can Haz One or Many?
+
+The second facet we are going to look at is ActiveRecord associations
+
+### class Dog
+
+To look at associations let create a very practicall example.
+
+- We'll try to build some dogs. (why, or why Rails does not have has_four? Dog having many legs sounds very creepy. But, perhaps, it was concious choice…)
+- And we'll have corresponding notion of a head and a leg
+
+### Dog.build
+And - let build some dogs.
+- At first we'll create 20 dogs (sorry, no heads or legs)
+- We'll find a dog without a head, and mitigate this problem
+- We'll do the same to help the dog move around
+
+### assert_sanity
+
+To verify what we get I used a  
+
+
 
 
 
