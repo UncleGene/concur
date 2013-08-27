@@ -1052,7 +1052,7 @@ Finished tests in 2.957711s, 0.3956 tests/s, 0.7912 assertions/s.
             <li class="fragment">Add table - OK</li>
             <li class="fragment">Add column - OK</li>
             <li class="fragment">Add/remove index - so-so</li>
-            <li class="fragment">Remove column - oops</li>
+            <li class="fragment">Remove column - oops <span class="fragment">(before 4.0)</span></li>
           </ul>
 
         </section>
@@ -1106,7 +1106,7 @@ end
           </code></pre>
           <ul>
             <li class="fragment">All operations are defined in terms of klass.columns (directly or indirectly)</li>
-            <li class="fragment">True for Rails 2.x, 3.0 <img class= "fragment smallTop" src="images/gap.jpg"> 3.2, 4.0</li>
+            <li class="fragment">True for Rails 2.x, 3.0 <img class= "fragment smallTop" src="images/gap.jpg"> 3.2</li>
           </ul>
 
         </section>
@@ -1319,19 +1319,19 @@ config.assets.digest = true
 
         </section>
         <!-- Bonus --><section>
-          <h2>Bonus: Interview Question</h2>
-          <h3 class="fragment">Design a ToDo application. Requirements:</h3>
+          <h3>Homework</h2>
+          <h4 class="fragment">Design a ToDo web application. Requirements:</h4>
           <ul>
             <li class="fragment">User can add an item at an arbitrary place</li>
             <li class="fragment">User can easily reorder items on the list</li>
             <li class="fragment">All edits are saved "behind the scenes"</li>
-          </ul>
-          <h3 class="fragment">You get points for considering:</h3>
+          <h4 class="fragment">You get points for considering:</h4>
           <ul>
             <li class="fragment">Synchronous vs. asynchronous messaging</li>
-            <li class="fragment">Lost reordering messages</li>
+            <li class="fragment">Lost item reordering messages</li>
             <li class="fragment">Reordering messages coming out-of-order</li>
-            <li class="fragment">User adding and/or reordering on a stale page</li>
+            <li class="fragment">User adding, editing and/or reordering on a stale page</li>
+          </ul>
           </ul>
         </section>
         <!-- credits --><section>
@@ -1368,7 +1368,7 @@ config.assets.digest = true
         </section>
         <!-- Q & A --><section>
           <h1>Q & A</h1>
-          <p class="fragment">You can probably  guess my excuse for my pretend not understood you questin</p>
+          <p class="fragment">You can probably guess my excuse for I pretend not understood you questin me not like!</p>
         </section>
 			</div>
 
