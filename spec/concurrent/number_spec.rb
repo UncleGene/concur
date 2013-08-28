@@ -13,6 +13,6 @@ describe Number do
       10.times{ Number.find_or_create_by_value(Number.count) }
     end
     
-    Number.count.must_equal Number.select(:value).uniq.count #Number.select('distinct value').count
+    0.must_equal Number.count - Number.select('distinct value').count, 'Not unique values'
   end
 end
