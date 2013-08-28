@@ -38,10 +38,6 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
         <!-- Rails: Shadow Facets of Concurrency --><section>
-
-<aside class="notes" data-markdown>
-Opening
-</aside>
           <h2>Rails: Shadow Facets of Concurrency</h2>
 
           <small>
@@ -64,27 +60,6 @@ end
           </code></pre>
         </section>
         <!--   con·cur·ren·cy --><section>
-
-<aside class="notes" data-markdown>
-Concurrency is so mysterious, that most online dictionaries do not even try to define it.
-
-* Meriam-Webster at least gives you a tip where to look
-
-* Wikipedia gives a CS-specific definition:
-  
-  several computations executing simultaneously, and potentially interacting with each other
-
-* If we return back to a dictionary, we can see that all synonyms have a positive tinge,
-and antonyms are pretty negative.
-
-What underlines the mystery of concurrency is that in Software Engineering we gradually
-move the semantics of this word more and more toward its antonyms: when we say "concurrency",
-in a lot of cases we mean concurrency issues or problems.
-
-In this talk I am going to use concurrency almost solely in its inverted (or perverted?) meaning
-
-But let start first with a short quiz
-</aside>
           <h2>con·cur·ren·cy</h2>
 
           <img src="images/concurrency.jpg" class="fragment">
@@ -102,16 +77,6 @@ Antonyms
 
         </section>
         <!--   You may not worry about concurrency if: --><section>
-
-<aside class="notes" data-markdown>
-Please raise your hand if you agree that you should not care about concurrency if
-
-* you use rails?
-* you use rails and ypu do not use multi-threading?
-* rails, single thread, and low traffic?
-
-You are not alone! | You are good, but...
-</aside>
           <h2>
             You may not worry about concurrency if:
           </h2>
@@ -123,10 +88,6 @@ You are not alone! | You are good, but...
 
         </section>
         <!--     img: monorail --><section>
-
-<aside class="notes" data-markdown>
-Somebody felt safe with low-traffic single-threaded Rails aopplication
-</aside>
           <img src="images/SeattleMonorailAccident.jpg">
           <!-- cc 
             #CC-BY-SA-2.5 Garrett Fitzgerald
@@ -136,46 +97,16 @@ Somebody felt safe with low-traffic single-threaded Rails aopplication
         </section>
         <!--   Why? --><section>
 
-<aside class="notes" data-markdown>
-Let look at where concurrency comes into picture
-</aside>
-
           <h2>Why?</h2>
 
         </section>
         <!--     RAILS_ENV=development --><section>
-
-<aside class="notes" data-markdown>
-When we develop our application, we use an environment where we always have
-[at most] one rails instance. We have absolutely no chance to encounter any concurrency
-issues when we run our rails server, rails console or test suite.
-
-(BTW, everywhere in this talk I assume you use classic relational Rails stack.
-If you use NoSQL, you probably just exchange one set of problems to another)
-
-But as soon as we deploy our application to production environment  ...
-</aside>
 
           <h3>RAILS_ENV=development</h3>
           <img class="small" src="images/box_one_rails_one_db.png">
 
         </section>
         <!--     RAILS_ENV=production --><section>
-
-<aside class="notes" data-markdown>
-We are starting to be exposed to the first aspect of concurrency
-
-- you have multiple Rails instances trying to talk to the same database
-  (BTW, in this talk I assume you use classic relational Rails stack.
-  If you use NoSQL, you probably just exchange one set of problems to another)
-- and as soon as we start to scale, we have
-
-- the aspect of unpredictable routing
-
-  - you never know which host will reply to the request
-
-  - or even in what order your hosts will reply
-</aside>
 
           <h3>RAILS_ENV=production</h3>
           <div>
@@ -202,28 +133,11 @@ We are starting to be exposed to the first aspect of concurrency
           </section>
         <!-- Part 1. Rails and Concurrency --><section>
 
-<aside class="notes" data-markdown>
-We'll start with looking at Rails-specific concurrency issues (reserving)
-</aside>
-
           <h2>Part 1</h2>
           <h3>Rails and Concurrency</h3>
 
         </section>
         <!--     RAILS_ENV=test --><section>
-
-<aside class="notes" data-markdown>
-But let at first invest in a tool set that would allow to reproduce such issues 
-and verify our attempts to fix them.
-
-- First of all, we need to make sure that we use in test the same database engine
-and adaptor as anywhere else. Default sqlite is useless for our purposes.
-But please, PLEASE, make sure that the database name is different!
-- second - we just need to add to our code a helper function that will simulate
-the multi-process environment
-  - we fork provided block of code to multiple processes
-  - and make sure at the end that all processes succeed
-</aside>
 
           <h3>RAILS_ENV=test</h3>
           <div class="fragment">
@@ -269,18 +183,6 @@ end
           </div>
         </section>
         <!--     RAILS_ENV=test --><section>
-
-<aside class="notes" data-markdown>
-In reality this is a little bit more involved. As we are testing for concurrency, we
-need to handle all shared resources safely ourselves.
-
-- we need to make sure that each of our processes has its own database connection
-(fork creates an exact copy, so without this all processes will try to se the same connection)
-
-- and we need to take care of another shared resource - IO.
-Without this precaution all processes can try to output everything at once,
-and good luck in trying to parse interleaved exception backtraces.
-</aside>
 
           <h3>RAILS_ENV=test</h3>
           <pre class="w80"><code class="ruby" data-trim>
@@ -346,15 +248,6 @@ end
         </section>
         <!--   Facet #1: One and Only --><section>
 
-<aside class="notes" data-markdown>
-Now we are ready to start digging. Our first facet is One and Only - how can we make sure that no users in our model
-share the same social, or no cars have the same VIN?
-
-Rails gives us at least two ways to do this.
-
-And the first of them is...
-</aside>
-
           <h2>Facet #1: One and Only</h2>
           <img src="images/unique_by_sorah42-d33i1bm.jpg">
           <!-- cc 
@@ -365,23 +258,6 @@ And the first of them is...
 
         </section>
         <!--     first_or_create --><section>
-
-<aside class="notes" data-markdown>
-first_or_create (or its now deprecated twin find_or_create_by)
-
-- To test this we'll create a simple model Number with a single attribute
-conveniently called value.
-- and to exercise this approach we have a simple test
-  - that creates a number with a value corresponding to current database state.
-    
-    We want our test processes to collide as much as possible, and Number.count is used
-as a simple synchronization mechanism
-
-  - at the end we check that all values are unique by comparing number of records
-with number of unique values
-
-- Let run this test, and we see that 50 numbers (99 - 49) have non-unique values
-</aside>
 
           <h3>first_or_create</h3>
           <pre class="fragment"><code class="ruby" data-trim>
@@ -437,10 +313,6 @@ Expected: 49
         </section>
         <!--       img: quake bent rails --><section>
 
-<aside class="notes" data-markdown>
-We got a some crooked rails!
-</aside>
-
           <img src="images/GuateQuake1976BentRailsA.jpg">
           <!-- cc 
             Public Domain
@@ -449,23 +321,6 @@ We got a some crooked rails!
 
         </section>
         <!--     first_or_create.inspect --><section>
-
-<aside class="notes" data-markdown>
-One of the best tools Rails provides to see what really happens is a query log
-in Rails console
-
-- Let see what happens. Rails really does what it says - first or create
-  - It checks if record exists,
-  - and creates a new one if it doesn't
-  - second process comes in
-  - finds the record and returns it.
-- Everything works fine if these processes come one by one. But what can happen
-if they come together?
-  - First process: check!
-  - Second process: check!
-  - First process: I have to create!
-  - Second: but I do too!
-</aside>
 
           <h3>first_or_create.inspect</h3>
           <div>
@@ -545,10 +400,6 @@ if they come together?
         </section>
         <!--       img: train wreck --><section>
 
-<aside class="notes" data-markdown>
-and we get what we get!
-</aside>
-
             <img src="images/Train_wreck_at_Montparnasse_1895.jpg">
             <!-- cc 
                 PD
@@ -557,16 +408,6 @@ and we get what we get!
 
         </section>
         <!--     validates :uniquiness --><section>
-
-<aside class="notes" data-markdown>
-The second tool Rails gives us - uniquiness validation
-
-- We'll use another model that validates the value for uniquiness
-- run practically the same test
-- and get 59 non-unique values
-- because underneath we do exactly the same,
-  - just slightly different form of the query
-</aside>
 
             <h3>validates :uniquiness</h3>
 
@@ -616,15 +457,6 @@ Expected: 37
         </section>
         <!--       img: overturned car --><section>
 
-<aside class="notes" data-markdown>
-Oops.
- 
-  BTW, do not use first_or_create and validate uniquiness together. What you get
-in this case is that for each record not found by first_or_create,
-uniquiness validation will check again - and you have 2 database queries for the price
-of non-working one.
-</aside>
-
             <img src="images/5786322835_e6428d9059_b.jpg">
             <!-- cc
                 Courtesy of the Boston Public Library, Leslie Jones Collection
@@ -633,20 +465,6 @@ of non-working one.
 
         </section>
         <!--     unique.fix :db  --><section>
-
-<aside class="notes" data-markdown>
-The way to fix this is to do validation at the only place that knows about all your processes -
-on database level.
-
-- The most universal way to do this is to add an
-  - unique index on the column.
-
-    Unfortunately this is not enough - if you do not change your application code, 
-
-- what you get ia a bunch of exceptions;
-- this is the case where you can start appreciating that we "abbreviated" errors  in our
-helper method.
-</aside>
 
           <h3>unique.fix :db </h3>
 
@@ -717,10 +535,6 @@ DETAIL:  Key (value)=(0) already exists.
         </section>
         <!--       img: train over wall --><section>
 
-<aside class="notes" data-markdown>
-so - you have to change your code first to avoid such problems
-</aside>
-
           <img src="images/2488898004_feb5bf9787_b.jpg">
           <!-- cc
             CC BY-NC-ND 2.0 ATOMIC Hot Links
@@ -729,26 +543,6 @@ so - you have to change your code first to avoid such problems
 
         </section>
         <!--     unique.fix :db, diy: true --><section>
-
-<aside class="notes" data-markdown>
-Instead of direct usage of first_or_create we'll need to
-
-- wrap it in a custom method that handles RecordNotFound exception
-  - by simply retrying the main flow.
-
-Let run the test and make sure that everything is fine.
-
-- And it is indeed.
-
-  Or not...
-
-  This works fine for Postgres. If we run the same code on MySQL
-
-- we can get a nasty surprise. This surprise is a multi-layer one:
-  - first, how MySQL manages to get to a deadlock performing
-    the same operation? And second, why the adapter maps this to StatementInvalid exception -
-    one that we can't blindly catch, as it can indicate real query problems.
-</aside>
 
           <h3>unique.fix :db, diy: true</h3>
 
@@ -795,10 +589,6 @@ F
         </section>
         <!--       img: curved rails --><section>
 
-<aside class="notes" data-markdown>
-So our solution becomes not as straight
-</aside>
-
           <img src="images/4963981594_849491e7cc_o.jpg">
           <!-- cc
             CC BY-ND 2.0 Mike Campbell
@@ -807,12 +597,6 @@ So our solution becomes not as straight
 
         </section>
         <!--     unique.fix :db, diy: true, mysql: true --><section>
-
-<aside class="notes" data-markdown>
-- We have a second rescue block in our method
-- Where we have to looks inside the message to see whether to retry or rethrow the exception
-- Finally we get a hack that works fine on both Postgres and Mysql
-</aside>
 
           <h3>unique.fix :db, diy: true, mysql: true</h3>
 
@@ -852,10 +636,6 @@ Finished tests in 3.234423s, 0.3092 tests/s, 0.6183 assertions/s.
         </section>
         <!--       img: fast train --><section>
 
-<aside class="notes" data-markdown>
-Hurray! We are moving forward!
-</aside>
-
           <img src="images/fast_train.jpg">
           <!-- cc
             CC-BY-NC-ND 3.0 Swansea
@@ -864,23 +644,11 @@ Hurray! We are moving forward!
         </section>
         <!--   Facet #2: I Can Haz One or Many? --><section>
 
-<aside class="notes" data-markdown>
-The second facet we are going to look at is associated with associations
-</aside>
-
           <h2>Facet #2: I Can Haz One or Many?</h2>
           <h3>or Guilty by Association</h3>
 
         </section>
         <!--     class Dog --><section>
-
-<aside class="notes" data-markdown>
-To look at it let create a very practical and useful example.
-
-- We'll try to build some dogs. (why, or why Rails does not have has_four? Dog having many legs sounds very creepy. But,
-  perhaps, it was a conscious choice…)
-- And we'll have corresponding notion of a head and a leg
-</aside>
 
           <h3>class Dog</h3>
 
@@ -903,13 +671,6 @@ end
 
         </section>
         <!--     Dog.build --><section>
-
-<aside class="notes" data-markdown>
-And - let build some dogs.
-- At first we'll create 20 dogs (sorry, no heads or legs)
-- We'll find a dog without a head, and mitigate this problem
-- We'll do the same to help the dog move around
-</aside>
 
           <h3>Dog.build</h3>
 
@@ -972,14 +733,6 @@ end
         </section>
         <!--     assert_sanity --><section>
 
-<aside class="notes" data-markdown>
-To verify what we get I used a helper method pretty_report that constructs a string
-of what interesting dogs can we get, and hopefully we can get 20 dogs with 1 head and 
-4 legs each. Let run this test and see what we get
-
-- Ouch… 3 dogs with 1 head and 8 legs, 1 dog with 2 heads and 32 legs, 1 dog with 2 heads and 40 legs…
-</aside>
-
           <h3>assert_sanity</h3>
 
           <pre><code class="ruby" data-trim>
@@ -997,10 +750,6 @@ pretty_report(Dog.all).must_equal "20 dogs with 1 head and 4 legs"
         </section>
         <!--       img: crash --><section>
 
-<aside class="notes" data-markdown>
-I'd rather have this product of nightmare not survive this rails accident
-</aside>
-
           <img src="images/crash.jpg">
           <!-- cc
             PD
@@ -1009,21 +758,6 @@ I'd rather have this product of nightmare not survive this rails accident
 
         </section>
         <!--     dog.head.inspect --><section>
-
-<aside class="notes" data-markdown>
-What heppens with heads?
-
-- let use our handy inspection tool. We can see here not 1, but 4 problems:
-  - First - new head is always added to a dog, By this Rails practically guarantees
-    that in cases when you substitute has_one association, there is a period of time
-    where has_one constraint is violated - you guaranteed to have 2 associations.
-  - Second - what we already saw in uniquiness, select happening before update
-  - Third - Rails believes that we had at most one association before
-  - And fourth (hope you can see tiny highlight) is what is not there. This statement
-    does not ask for any order. No database that I am aware of guarantees **any** order
-    unless explicitly asked. It means that when DB decides to change the order - this
-    detection of "if there was anything before" fails.
-</aside>
 
           <h3>dog.head.inspect</h3>
 
@@ -1089,23 +823,10 @@ What heppens with heads?
 
         </section>
         <!--       img: many heads --><section>
-
-<aside class="notes" data-markdown>
-Hello multi-headed monsters!
-</aside>
           <img src="images/three_heads.jpg">
 
         </section>
         <!--     dog.legs.inspect --><section>
-
-<aside class="notes" data-markdown>
-Let look at what happens with legs
-
-- When dog does not have any legs, all new legs are getting attached 
-- If it had some before, rails first detaches ones that it does not need, and
-  attaches only necessary new ones (skipping already attached)
-- But we still have the same basic problem - select before update
-</aside>
 
           <h3>dog.legs.inspect</h3>
 
@@ -1149,20 +870,10 @@ Let look at what happens with legs
         </section>
         <!--       img: many legs --><section>
 
-<aside class="notes" data-markdown>
-that leads us to the same problem with concurrent updates
-</aside>
-
           <img src="images/many_legs.jpg">
 
         </section>
         <!--     dog.head.fix --><section>
-
-<aside class="notes" data-markdown>
-- As we have only one head, we can use the same approach as we used with uniquiness.
-  If we really want, we can reduce legs problem to uniquiness too by associating each leg (e.g. front left, front right,
-  etc.) explicitly. But let try to find more universal approach.
-</aside>
 
           <h2>dog.head.fix</h2>
 
@@ -1170,14 +881,6 @@ that leads us to the same problem with concurrent updates
 
         </section>
         <!--     dog.fix :db --><section>
-
-<aside class="notes" data-markdown>
-- We will use database-level locking to prevent processes clashing into each other.
-  - for this we will start transaction and lock the record right after finding it.
-- Run your tests and enjoy your life…
-- This time - you enjoy it only with MySQL. Postgres in this case still works fine with legs, but with head it
-  apparently uses its right to return arbitrary record when asked for the first one
-</aside>
 
           <h3>dog.fix :db</h3>
 
@@ -1221,10 +924,6 @@ end
         </section>
         <!--       img: car over water --><section>
 
-<aside class="notes" data-markdown>
-You see this on Rails before 4.0 (and, hopefully, 3.2.15). Rails 4 finally started to provide default order for .first
-</aside>
-
           <img src="images/car_over_water.jpg">
           <!-- cc
             Courtesy of the Boston Public Library, Leslie Jones Collection
@@ -1233,16 +932,6 @@ You see this on Rails before 4.0 (and, hopefully, 3.2.15). Rails 4 finally start
 
         </section>
         <!--     dog.fix :db, force(:brute) --><section>
-
-<aside class="notes" data-markdown>
-- We can try to use a lock together with finding the record we need to change
-- And indeed, we have all our tests succeeding. But at what cost?
-- If we look at our favorite inspection tool
-  - We can see that the whole table is locked!
-  - This happens because model-level lock is applied to the scoped part our   
-    statement. You'll need to train your eye to see where Arel ends and where Array 
-    starts.
-</aside>
 
           <h3>dog.fix :db, force(:brute)</h3>
 
@@ -1291,16 +980,6 @@ Finished tests in 2.527906s, 0.3956 tests/s, 0.7912 assertions/s.
 
         </section>
         <!--     dog.fix :diy --><section>
-
-<aside class="notes" data-markdown>
-As we probably do not want to use the table lock sledgehammer, let fix it on
-application level.
-- We are going to do a cleanup **after** update ourselves
-  - For this we will just 'detach' all extra heads and legs at the end
-  - The key part here is that all processes have to agree what 'extra' means.
-    They should not be greedy and try to preserve what they just have added.
-- Tests confirm for us that the cleanup approach succeeds
-</aside>
 
           <h3>dog.fix :diy</h3>
 
@@ -1360,23 +1039,10 @@ Finished tests in 2.957711s, 0.3956 tests/s, 0.7912 assertions/s.
         </section>
         <!--   Facet 3: Emigration --><section>
 
-<aside class="notes" data-markdown>
-Facet 3: Emigration
-</aside>
-
           <h2>Facet #3: Emigration</h2>
 
         </section>
         <!--     db:migrate --><section>
-
-<aside class="notes" data-markdown>
-When we do our database migrations,  
-- we are fine with adding tables
-- or columns
-- we are ok with adding or changing indices (with database-specific performance taxes)
-- but beware of column deletion.
-  - if you are < 4.0
-</aside>
 
           <h3>db:migrate</h3>
           <ul>
@@ -1388,12 +1054,6 @@ When we do our database migrations,
 
         </section>
         <!--     try :remove_column --><section>
-
-<aside class="notes" data-markdown>
-- If we try to remove column on a "hot" website (making sure that nobody uses it)
-- We will start to see a lot of errors
-  - This column may not be used in your code, but Rails still uses it in a lot of queries.
-</aside>
 
           <h3>try :remove_column</h3>
 
@@ -1421,11 +1081,6 @@ ActiveRecord::StatementInvalid: PG::Error: ERROR:  column "extra" of relation "e
         </section>
         <!--       img: train crash --><section>
 
-<aside class="notes" data-markdown>
-The worst part is that your application level rescue will prevent your processes from failing completely, so this error
-will be there until your next restart
-</aside>
-
           <img src="images/rebels.jpg">
           <!-- cc
             PD A.J. Russell
@@ -1434,13 +1089,6 @@ will be there until your next restart
 
         </section>
         <!--     remove_column.inspect --><section>
-
-<aside class="notes" data-markdown>
-- This happens because rails memoizes what columns your tables have, and never tries to refresh this list
-- It will help us to resolve the problem that all operations are using this method
-- And it works for all Rails versions. Almost.
-  - Notice the gap.
-</aside>
 
           <h3>remove_column.inspect</h3>
 
@@ -1460,15 +1108,6 @@ end
 
         </section>
         <!--     remove_column.fix --><section>
-
-<aside class="notes" data-markdown>
-- For fixing this we need to override this method in a class that have to loose the column, to "hide" such column from
-  the framework
-- Update our application code and restart
-- Now we can safely remove the column,
-- Remove hiding code
-- Do next restart, that may be much later, with some new feature launch.
-</aside>
 
           <h3>remove_column.fix</h3>
 
@@ -1493,32 +1132,12 @@ remove_column :extra_columns, :extra
         </section>
         <!--     remove_column.fix :rails_3_1 --><section>
 
-<aside class="notes" data-markdown>
-There should be some other way to do it for 3.1, but here is the answer I got on
-StackOverflow. Let try to follow what it says:
-
-Points 1 and 2 you need to do anyway, let start with 3:
-
-* Start up a new database that is a master-master to your existing database
-* Stop replication from your new database
-* Drop your columns on the new database server
-* One at a time reconfigure each application server to use the new database server and restart
-* Turn replication back on for your new database
-* Once the original server has caught back up, reconfigure the application to use that database server again (with
-  applicable restarts)
-* Stop replication and turn off new database server.
-</aside>
-
           <h3>remove_column.fix :rails_3_1</h3>
 
           <img src="images/3.1.jpg">
 
         </section>
         <!--       img: car_on_car  --><section>
-
-<aside class="notes" data-markdown>
-Wow...
-</aside>
 
           <img src="images/car_on_car.jpg">
           <!-- cc
@@ -1529,25 +1148,10 @@ Wow...
         </section>
         <!--   Facet 4: Assets --><section>
 
-<aside class="notes" data-markdown>
-Let talk about asset pipeline
-</aside>
-
           <h2>Facet #4: Assets & Liabilities</h2>
 
         </section>
         <!--     deploy :shutdown --><section>
-
-<aside class="notes" data-markdown>
-To understand what can go wrong we need to look at how do we deploy our changes to servers.
-One of valid methods of deployment is to 
-- shut down 
-- all your servers
-- replace your application
-- and start up again
-
-This is a very safe approach, but safety has its cost - and this cost is availability. You just took your site down.
-</aside>
           <h3>deploy :shutdown</h3>
             <span>
               <img class="small" src="images/box_many_rails.png">
@@ -1571,20 +1175,6 @@ This is a very safe approach, but safety has its cost - and this cost is availab
             </span>
         </section>
         <!--     deploy :rolling_swap --><section>
-
-<aside class="notes" data-markdown>
-If you don't want to give away your availability, you have to go with rolling deployment. The most common way to do this
-is to
-
-- deploy your new code to a single host
-- restart the server to pick up changes
-- deploy to the next one…
-  
-  but here is a problem. Each rails deployment has only one version of assets.
-In this state (before restart) server is still serving red pages, but it already 
-"forgot" about red assets - so clients are getting 404s, and you are getting routing errors. The way to mitigate this
-problem is to use a mix of two strategies.
-</aside>
           <h3>deploy :rolling_swap</h3>
             <span>
               <img class="small" src="images/box_many_rails.png">
@@ -1604,16 +1194,6 @@ problem is to use a mix of two strategies.
             </span>
         </section>
         <!--     deploy :rolling_shutdown --><section>
-
-<aside class="notes" data-markdown>
-We are going to
-
-- shut down the first host
-- update application and start it
-  
-  we are fine on this host, but here we have an issue with unpredictable routing.
-Pages served from a red host can try to get assets from a green one, and vice versa.
-</aside>
           <h3>deploy :rolling_shutdown</h3>
             <span>
               <img class="small" src="images/box_many_rails.png">
@@ -1629,17 +1209,6 @@ Pages served from a red host can try to get assets from a green one, and vice ve
             </span>
         </section>
         <!--     rake assets:fix --><section>
-
-<aside class="notes" data-markdown>
-Fortunately Rails has almost all necessary pieces to avoid this problem, we just need to connect all dots together. 
-
-- We need to enable asset host (and start using it!)
-- If we use S3 for hosting assets, we can use 'asset_sync' gem that integrates asset uploading with asset compilation
-- But in any case making sure all assets are uploaded to an asset host is not a rocket science
-- We need to make sure that old assets are available for a time sufficient to finish deployment to all hosts (or even
-  longer, in case you may need to roll back your changes)
-- Just make sure that different versions of assets do not override each other
-</aside>
           <h3>rake assets:fix</h3>
           <pre class="fragment"><code class="ruby" data-trim>
 config.action_controller.asset_host = "//your.super.asset.host"
@@ -1655,10 +1224,6 @@ config.assets.digest = true
         </section>
         <!--       img: fast  --><section>
 
-<aside class="notes" data-markdown>
-And we are rolling
-</aside>
-
           <img src="images/fast.jpg">
           <!-- cc
             CC-BY-SA 3.0 Bhanutpt
@@ -1667,13 +1232,6 @@ And we are rolling
 
         </section>
         <!--   Rails.why? --><section>
-
-<aside class="notes" data-markdown>
-- Rails goes out of its way to make simple tasks even simpler. It does this by adding a lot of magic tricks that hide
-  what is going behind the curtain.
-- Unfortunately such hiding may (and will) strike back when your scenario even slightly deviate from the mainstream.
-  It does not seem that concurrency issues made it to the mainstream yet.
-</aside>
           <h2>Rails.why?</h2>
           <div class="fragment">
             <blockquote cite="http://david.heinemeierhansson.com/2012/rails-is-omakase.html">
@@ -1689,23 +1247,11 @@ And we are rolling
         </section>
         <!-- Part 2. Beyond Rails --><section>
 
-<aside class="notes" data-markdown>
-And now, finally, we are up to more interesting and not Rails-only stuff. The main difference is that if for
-Rails-specific issues you probably can find more-or-less universal workarounds, wider-scope concurrency problems usually
-do not have a silver bullet solution.
-</aside>
-
           <h2>Part 2</h2>
           <h3>Beyond Rails</h3>
 
         </section>
         <!--   Development and Deployment --><section>
-
-<aside class="notes" data-markdown>
-- Long ago ex - US Secretary of Defence described development and deployment as hardly combinable. Almost 30 years later
-we all moved to this counterproductive environment as our everyday lifestyle. We are constantly developing and deploying
-concurrently.
-</aside>
           <h3>Development and Deployment</h3>
           <div class="fragment">
             <blockquote cite="http://david.heinemeierhansson.com/2012/rails-is-omakase.html">
@@ -1716,34 +1262,6 @@ concurrently.
 
         </section>
         <!--     Call for volunteers --><section>
-
-<aside class="notes" data-markdown>
-Here we see already familiar picture of our rolling deployment in the flight.
-
-- To show what can and will happen I'll need some help
-
-Two of you will be servers, other two - clients, and I'll be a router. Dear servers, please do not answer ny requests
-until I route it to you!
-
-- Server One: You have a simple API: on request "What do you have?" you are going to respond: "I have a candy in my
-  left pocket".
-
-  Please put it there. And on request "Please give me a candy from your left pocket" you'll share what you have. Please
-  do not be greedy!
-
-- Client one: please ask the server "What do you have?"  
-- Dear server, please answer [I have a candy in my left pocket]
-- For now, client one, you are distracted by what is going around, so please hold on your second request (I hope you can
-  survive couple minutes without a candy?)
-- Server Two, you are my new improved version. Your drastic improvement is that you have a candy in your right pocket.
-- Client Two, please ask "What do ypu have?"
-- Server Two, please answer [I have a candy in my right pocket]
-- Client Two, please ask for your candy. You remember where it is? 
-- I am routing this to you, Server One. Please give him a candy from your right pocket… What, you do not have it there?
-  Please show us your interpretive dance for "Page not found"
-- OK, Client One, time to wake up. You remember what to ask? [Please give me a candy from your left pocket]
-- Server Two, as ypu are an improved version, ypu just crash on this request. Please show us "Server Down"
-</aside>
           <h3>Development and Deployment</h3>
           <img class="small" src="images/box_many_rails_g.png">
           <img class="small" src="images/box_many_rails.png">
@@ -1754,10 +1272,6 @@ until I route it to you!
         </section>
         <!--       img: railroad  --><section>
 
-<aside class="notes" data-markdown>
-Server down....
-</aside>
-
           <img src="images/railroad.jpg">
           <!-- cc
             CC BY 2.0 Chris Updegrave
@@ -1766,22 +1280,6 @@ Server down....
 
         </section>
         <!--     changed_feature.deploy! --><section>
-
-<aside class="notes" data-markdown>
-Now let fix this issue
-
-- Server One, your API does not change, but I am giving yo a candy to put in your right pocket
-- Server Two, here is one for your left pocket
-- Now I can successfully deploy you, even if Server One is still around
-- We need to wait some time till all potential requests are satisfied (please, give one of your candies to the clients
-  each). Remember, that we need to wait all the time necessary for all clients to be satisfied
-  (or you define what is "too late" and accept the fact that you have no chance to satisfy 100%)
-- Now ypu can cleanup your backwards-compatibility code. For us cleanup means that I thank you for your help!
-
-  - You should always treat your web server as an API provider
-  - In software-as-a-service world, nobody would even imagine dropping a new
-  API version without sufficient grace period, but web application developers do this all over the places.
-</aside>
           <h2>changed_feature.deploy!</h2>
           <ol>
             <li class="fragment">Teach old dog new tricks (but do not show them)</li>
@@ -1799,16 +1297,6 @@ Now let fix this issue
         </section>
         <!-- quiz recap --><section>
 
-<aside class="notes" data-markdown>
-So, returning to our starting quiz,
-
-- you should not worry about the concurrency only if you do not care (BTW, "do not care"" is not necessarily negligence.
-  Sometimes nature of your application may make you ether safe from such problems, or potential impact of concurrency
-  issues is very limited)
-- But if you do, remembering all potential sources of concurrency (shared resources and unpredictable routing, combined
-  with non-atomic deployment process) will help you to find a solution.
-</aside>
-
           <h3>
             You may not worry about concurrency if:
           </h3>
@@ -1820,10 +1308,6 @@ So, returning to our starting quiz,
         </section>
         <!--   img: many ways  --><section>
 
-<aside class="notes" data-markdown>
-One way or another....
-</aside>
-
           <img src="images/many_ways.jpg">
           <!-- cc
             CC BY-NC-ND 2.0 SCFiasco
@@ -1832,22 +1316,6 @@ One way or another....
 
         </section>
         <!-- Bonus --><section>
-
-<aside class="notes" data-markdown>
-This exercise can help you to train your "concurrent" thinking
-
-- Design a ToDo application, where
-  - User can add a ToDo item in arbitrary place
-  - App should support easy reordering of items
-  - Everything is saved implicitly
-- Focus on what is send over the network and what is persisted in your database. You get your points for considering:
-  - Synchronous vs. asynchronous messaging
-  - Some messages about user changing order of ToDo items can be lost
-  - Some messages can come out-of-order
-  - User can have your application opened in a different tabs (or even different computers)
-
-Please feel free to use this question on your interviews, or even come with prepared answer to mine.
-</aside>
           <h3>Homework</h3>
           <h4 class="fragment">Design a ToDo web application. Requirements:</h4>
           <ul>
@@ -1864,10 +1332,6 @@ Please feel free to use this question on your interviews, or even come with prep
           </ul>
         </section>
         <!-- credits --><section>
-
-<aside class="notes" data-markdown>
-Credits
-</aside>
           <h4>Credits</h4>
           <ul class="tiny">
             <li>Hakim El Hattab - Reveal.js, http://lab.hakim.se/reveal-js/#/
@@ -1900,10 +1364,6 @@ Credits
           </ul>
         </section>
         <!-- Q & A --><section>
-
-<aside class="notes" data-markdown>
-Q&A
-</aside>
           <h1>Q & A</h1>
           <p class="fragment">You can probably guess my excuse for I pretend not understood you questin me not like!</p>
         </section>
