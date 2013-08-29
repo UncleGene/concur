@@ -59,24 +59,27 @@ audience.<em>except</em>(&:can_see_this).each do |person|
 end
           </code></pre>
         </section>
-        <!--   con·cur·ren·cy --><section>
-          <h2>con·cur·ren·cy</h2>
+        <!-- #1  con·cur·ren·cy --><section>
+          <h3>Strange World of con·cur·ren·cy</h3>
 
           <img src="images/concurrency.jpg" class="fragment">
-
-          <blockquote class="fragment" cite="http://en.wikipedia.org/wiki/Concurrency_(computer_science)">
+          <img src="images/concurrency_road.jpg" class="fragment">
+          <blockquote class="fragment subst" cite="http://en.wikipedia.org/wiki/Concurrency_(computer_science)">
             In computer science, concurrency is a property of systems in which several computations
             are executing simultaneously, and potentially interacting with each other
           </blockquote>
-
           <pre class="fragment w55">
 Synonyms
   <em>coexistence, coincidence, concurrence</em>
 Antonyms
   <em>conflict, disagreement, dissensus</em></pre>
 
+          <pre class="fragment w55"><code data-trim>
+You have a concurrency on this line!
+          </code></pre>
+
         </section>
-        <!--   You may not worry about concurrency if: --><section>
+        <!-- #2  You may not worry about concurrency if: --><section>
           <h2>
             You may not worry about concurrency if:
           </h2>
@@ -87,7 +90,7 @@ Antonyms
           </ul>
 
         </section>
-        <!--     img: monorail --><section>
+        <!-- #3    img: monorail --><section>
           <img src="images/SeattleMonorailAccident.jpg">
           <!-- cc 
             #CC-BY-SA-2.5 Garrett Fitzgerald
@@ -95,18 +98,18 @@ Antonyms
           -->
 
         </section>
-        <!--   Why? --><section>
+        <!-- #4  When? --><section>
 
-          <h2>Why?</h2>
+          <h2>When?</h2>
 
         </section>
-        <!--     RAILS_ENV=development --><section>
+        <!-- #5    RAILS_ENV=development --><section>
 
           <h3>RAILS_ENV=development</h3>
           <img class="small" src="images/box_one_rails_one_db.png">
 
         </section>
-        <!--     RAILS_ENV=production --><section>
+        <!-- #6    RAILS_ENV=production --><section>
 
           <h3>RAILS_ENV=production</h3>
           <div>
@@ -131,13 +134,13 @@ Antonyms
           </ul>
 
           </section>
-        <!-- Part 1. Rails and Concurrency --><section>
+        <!-- #7 Part 1. Rails and Concurrency --><section>
 
           <h2>Part 1</h2>
           <h3>Rails and Concurrency</h3>
 
         </section>
-        <!--     RAILS_ENV=test --><section>
+        <!-- #8    RAILS_ENV=test --><section>
 
           <h3>RAILS_ENV=test</h3>
           <div class="fragment">
@@ -182,7 +185,7 @@ end
             </code></pre>
           </div>
         </section>
-        <!--     RAILS_ENV=test --><section>
+        <!-- #9    RAILS_ENV=test --><section>
 
           <h3>RAILS_ENV=test</h3>
           <pre class="w80"><code class="ruby" data-trim>
@@ -246,7 +249,7 @@ end
           </code></pre>
 
         </section>
-        <!--   Facet #1: One and Only --><section>
+        <!-- #10  Facet #1: One and Only --><section>
 
           <h2>Facet #1: One and Only</h2>
           <img src="images/unique_by_sorah42-d33i1bm.jpg">
@@ -257,7 +260,7 @@ end
 
 
         </section>
-        <!--     first_or_create --><section>
+        <!-- #11    first_or_create --><section>
 
           <h3>first_or_create</h3>
           <pre class="fragment"><code class="ruby" data-trim>
@@ -311,7 +314,7 @@ Expected: 49
           </code></pre>
 
         </section>
-        <!--       img: quake bent rails --><section>
+        <!-- #12      img: quake bent rails --><section>
 
           <img src="images/GuateQuake1976BentRailsA.jpg">
           <!-- cc 
@@ -320,7 +323,7 @@ Expected: 49
           -->
 
         </section>
-        <!--     first_or_create.inspect --><section>
+        <!-- #13    first_or_create.inspect --><section>
 
           <h3>first_or_create.inspect</h3>
           <div>
@@ -398,7 +401,7 @@ Expected: 49
 
 
         </section>
-        <!--       img: train wreck --><section>
+        <!-- #14      img: train wreck --><section>
 
             <img src="images/Train_wreck_at_Montparnasse_1895.jpg">
             <!-- cc 
@@ -407,7 +410,7 @@ Expected: 49
             -->
 
         </section>
-        <!--     validates :uniquiness --><section>
+        <!-- $15    validates :uniquiness --><section>
 
             <h3>validates :uniquiness</h3>
 
@@ -455,7 +458,7 @@ Expected: 37
           </code></pre>
 
         </section>
-        <!--       img: overturned car --><section>
+        <!-- #16      img: overturned car --><section>
 
             <img src="images/5786322835_e6428d9059_b.jpg">
             <!-- cc
@@ -464,7 +467,7 @@ Expected: 37
             -->
 
         </section>
-        <!--     unique.fix :db  --><section>
+        <!-- #17    unique.fix :db  --><section>
 
           <h3>unique.fix :db </h3>
 
@@ -533,16 +536,16 @@ DETAIL:  Key (value)=(0) already exists.
           </code></pre>
 
         </section>
-        <!--       img: train over wall --><section>
+        <!-- #18      img: train over wall --><section>
 
-          <img src="images/2488898004_feb5bf9787_b.jpg">
+          <img src="images/santa_fe.jpg">
           <!-- cc
-            CC BY-NC-ND 2.0 ATOMIC Hot Links
-            http://www.flickr.com/photos/7552532@N07/2488898004/
+            CC BY-NC-SA 2.0 John McNab
+            http://www.flickr.com/photos/johnmcnab/6511819727/
           -->
 
         </section>
-        <!--     unique.fix :db, diy: true --><section>
+        <!-- #18    unique.fix :db, diy: true --><section>
 
           <h3>unique.fix :db, diy: true</h3>
 
@@ -587,7 +590,7 @@ F
           </code></pre>
 
         </section>
-        <!--       img: curved rails --><section>
+        <!-- #19      img: curved rails --><section>
 
           <img src="images/4963981594_849491e7cc_o.jpg">
           <!-- cc
@@ -596,7 +599,7 @@ F
           -->
 
         </section>
-        <!--     unique.fix :db, diy: true, mysql: true --><section>
+        <!-- #20    unique.fix :db, diy: true, mysql: true --><section>
 
           <h3>unique.fix :db, diy: true, mysql: true</h3>
 
@@ -634,7 +637,7 @@ Finished tests in 3.234423s, 0.3092 tests/s, 0.6183 assertions/s.
           </code></pre>
 
         </section>
-        <!--       img: fast train --><section>
+        <!-- #21      img: fast train --><section>
 
           <img src="images/fast_train.jpg">
           <!-- cc
@@ -642,13 +645,13 @@ Finished tests in 3.234423s, 0.3092 tests/s, 0.6183 assertions/s.
             http://www.freefoto.com/download/23-22-1/Swansea-London-Paddington-High-Speed-Train- -->
 
         </section>
-        <!--   Facet #2: I Can Haz One or Many? --><section>
+        <!-- #22  Facet #2: I Can Haz One or Many? --><section>
 
           <h2>Facet #2: I Can Haz One or Many?</h2>
           <h3>or Guilty by Association</h3>
 
         </section>
-        <!--     class Dog --><section>
+        <!-- #23    class Dog --><section>
 
           <h3>class Dog</h3>
 
@@ -670,7 +673,7 @@ end
           </code></pre>
 
         </section>
-        <!--     Dog.build --><section>
+        <!-- #24    Dog.build --><section>
 
           <h3>Dog.build</h3>
 
@@ -731,7 +734,7 @@ end
           </code></pre>
 
         </section>
-        <!--     assert_sanity --><section>
+        <!-- #25    assert_sanity --><section>
 
           <h3>assert_sanity</h3>
 
@@ -748,7 +751,7 @@ pretty_report(Dog.all).must_equal "20 dogs with 1 head and 4 legs"
           </code></pre>
 
         </section>
-        <!--       img: crash --><section>
+        <!-- #26      img: crash --><section>
 
           <img src="images/crash.jpg">
           <!-- cc
@@ -757,7 +760,7 @@ pretty_report(Dog.all).must_equal "20 dogs with 1 head and 4 legs"
           -->
 
         </section>
-        <!--     dog.head.inspect --><section>
+        <!-- #27    dog.head.inspect --><section>
 
           <h3>dog.head.inspect</h3>
 
@@ -822,11 +825,11 @@ pretty_report(Dog.all).must_equal "20 dogs with 1 head and 4 legs"
           </code></pre>
 
         </section>
-        <!--       img: many heads --><section>
+        <!-- #28      img: many heads --><section>
           <img src="images/three_heads.jpg">
 
         </section>
-        <!--     dog.legs.inspect --><section>
+        <!-- #29    dog.legs.inspect --><section>
 
           <h3>dog.legs.inspect</h3>
 
@@ -868,19 +871,19 @@ pretty_report(Dog.all).must_equal "20 dogs with 1 head and 4 legs"
           </code></pre>
 
         </section>
-        <!--       img: many legs --><section>
+        <!-- #30      img: many legs --><section>
 
           <img src="images/many_legs.jpg">
 
         </section>
-        <!--     dog.head.fix --><section>
+        <!-- #31    dog.head.fix --><section>
 
           <h2>dog.head.fix</h2>
 
           <pre class="fragment"><code>unique.fix :db, diy: true, mysql: mysql?</code></pre>
 
         </section>
-        <!--     dog.fix :db --><section>
+        <!-- #32    dog.fix :db --><section>
 
           <h3>dog.fix :db</h3>
 
@@ -922,7 +925,7 @@ end
           </code></pre>
 
         </section>
-        <!--       img: car over water --><section>
+        <!-- #33      img: car over water --><section>
 
           <img src="images/car_over_water.jpg">
           <!-- cc
@@ -931,7 +934,7 @@ end
           -->
 
         </section>
-        <!--     dog.fix :db, force(:brute) --><section>
+        <!-- #34    dog.fix :db, force(:brute) --><section>
 
           <h3>dog.fix :db, force(:brute)</h3>
 
@@ -979,7 +982,7 @@ Finished tests in 2.527906s, 0.3956 tests/s, 0.7912 assertions/s.
           </code></pre>
 
         </section>
-        <!--     dog.fix :diy --><section>
+        <!-- #35    dog.fix :diy --><section>
 
           <h3>dog.fix :diy</h3>
 
@@ -1037,23 +1040,22 @@ Finished tests in 2.957711s, 0.3956 tests/s, 0.7912 assertions/s.
           </code></pre>
 
         </section>
-        <!--   Facet 3: Emigration --><section>
+        <!-- #36  Facet 3: Emigration --><section>
 
           <h2>Facet #3: Emigration</h2>
 
         </section>
-        <!--     db:migrate --><section>
+        <!-- #37    db:migrate --><section>
 
           <h3>db:migrate</h3>
           <ul>
             <li class="fragment">Add table - OK</li>
-            <li class="fragment">Add column - OK</li>
-            <li class="fragment">Add/remove index - so-so</li>
+            <li class="fragment">Add column, add/remove index - so-so</li>
             <li class="fragment">Remove column - oops <span class="fragment">(before 4.0)</span></li>
           </ul>
 
         </section>
-        <!--     try :remove_column --><section>
+        <!-- #38    try :remove_column --><section>
 
           <h3>try :remove_column</h3>
 
@@ -1079,7 +1081,7 @@ ActiveRecord::StatementInvalid: PG::Error: ERROR:  column "extra" of relation "e
           </code></pre>
             
         </section>
-        <!--       img: train crash --><section>
+        <!-- #39      img: train crash --><section>
 
           <img src="images/rebels.jpg">
           <!-- cc
@@ -1088,7 +1090,7 @@ ActiveRecord::StatementInvalid: PG::Error: ERROR:  column "extra" of relation "e
           -->
 
         </section>
-        <!--     remove_column.inspect --><section>
+        <!-- #40    remove_column.inspect --><section>
 
           <h3>remove_column.inspect</h3>
 
@@ -1107,7 +1109,7 @@ end
           </ul>
 
         </section>
-        <!--     remove_column.fix --><section>
+        <!-- #41    remove_column.fix --><section>
 
           <h3>remove_column.fix</h3>
 
@@ -1130,14 +1132,14 @@ remove_column :extra_columns, :extra
           </ul>
 
         </section>
-        <!--     remove_column.fix :rails_3_1 --><section>
+        <!-- #42    remove_column.fix :rails_3_1 --><section>
 
           <h3>remove_column.fix :rails_3_1</h3>
 
           <img src="images/3.1.jpg">
 
         </section>
-        <!--       img: car_on_car  --><section>
+        <!-- #43      img: car_on_car  --><section>
 
           <img src="images/car_on_car.jpg">
           <!-- cc
@@ -1146,12 +1148,12 @@ remove_column :extra_columns, :extra
           -->
 
         </section>
-        <!--   Facet 4: Assets --><section>
+        <!-- #44  Facet 4: Assets --><section>
 
           <h2>Facet #4: Assets & Liabilities</h2>
 
         </section>
-        <!--     deploy :shutdown --><section>
+        <!-- #45    deploy :shutdown --><section>
           <h3>deploy :shutdown</h3>
             <span>
               <img class="small" src="images/box_many_rails.png">
@@ -1174,7 +1176,7 @@ remove_column :extra_columns, :extra
               <img class="small" src="images/box_many_rails_g.png">
             </span>
         </section>
-        <!--     deploy :rolling_swap --><section>
+        <!-- #46    deploy :rolling_swap --><section>
           <h3>deploy :rolling_swap</h3>
             <span>
               <img class="small" src="images/box_many_rails.png">
@@ -1193,7 +1195,7 @@ remove_column :extra_columns, :extra
               <img class="small" src="images/box_many_rails_mix.png">
             </span>
         </section>
-        <!--     deploy :rolling_shutdown --><section>
+        <!-- #47    deploy :rolling_shutdown --><section>
           <h3>deploy :rolling_shutdown</h3>
             <span>
               <img class="small" src="images/box_many_rails.png">
@@ -1208,7 +1210,7 @@ remove_column :extra_columns, :extra
               <img class="small" src="images/box_many_rails.png">
             </span>
         </section>
-        <!--     rake assets:fix --><section>
+        <!-- #48    rake assets:fix --><section>
           <h3>rake assets:fix</h3>
           <pre class="fragment"><code class="ruby" data-trim>
 config.action_controller.asset_host = "//your.super.asset.host"
@@ -1222,7 +1224,7 @@ config.action_controller.asset_host = "//your.super.asset.host"
 config.assets.digest = true
           </code></pre>
         </section>
-        <!--       img: fast  --><section>
+        <!-- #49      img: fast  --><section>
 
           <img src="images/fast.jpg">
           <!-- cc
@@ -1231,7 +1233,7 @@ config.assets.digest = true
           -->
 
         </section>
-        <!--   Rails.why? --><section>
+        <!-- #50  Rails.why? --><section>
           <h2>Rails.why?</h2>
           <div class="fragment">
             <blockquote cite="http://david.heinemeierhansson.com/2012/rails-is-omakase.html">
@@ -1245,13 +1247,13 @@ config.assets.digest = true
             of foodborne illness
           </small>
         </section>
-        <!-- Part 2. Beyond Rails --><section>
+        <!-- #51 Part 2. Off Rails --><section>
 
           <h2>Part 2</h2>
-          <h3>Beyond Rails</h3>
+          <h3>Off Rails</h3>
 
         </section>
-        <!--   Development and Deployment --><section>
+        <!-- #52  Development and Deployment --><section>
           <h3>Development and Deployment</h3>
           <div class="fragment">
             <blockquote cite="http://david.heinemeierhansson.com/2012/rails-is-omakase.html">
@@ -1261,7 +1263,7 @@ config.assets.digest = true
           </div>
 
         </section>
-        <!--     Call for volunteers --><section>
+        <!-- #53    Call for volunteers --><section>
           <h3>Development and Deployment</h3>
           <img class="small" src="images/box_many_rails_g.png">
           <img class="small" src="images/box_many_rails.png">
@@ -1270,7 +1272,7 @@ config.assets.digest = true
           <img class="small" src="images/box_many_rails.png">
           <p class="fragment">I Can Haz Four Volunteers?</p>
         </section>
-        <!--       img: railroad  --><section>
+        <!-- #54      img: railroad  --><section>
 
           <img src="images/railroad.jpg">
           <!-- cc
@@ -1279,7 +1281,7 @@ config.assets.digest = true
           -->
 
         </section>
-        <!--     changed_feature.deploy! --><section>
+        <!-- #55    changed_feature.deploy! --><section>
           <h2>changed_feature.deploy!</h2>
           <ol>
             <li class="fragment">Teach old dog new tricks (but do not show them)</li>
@@ -1295,7 +1297,7 @@ config.assets.digest = true
             <li class="fragment">Treat changing features as a new API version</li>
           </ul>
         </section>
-        <!-- quiz recap --><section>
+        <!-- #56 quiz recap --><section>
 
           <h3>
             You may not worry about concurrency if:
@@ -1306,7 +1308,7 @@ config.assets.digest = true
           </ul>
 
         </section>
-        <!--   img: many ways  --><section>
+        <!-- #57   img: many ways  --><section>
 
           <img src="images/many_ways.jpg">
           <!-- cc
@@ -1315,23 +1317,23 @@ config.assets.digest = true
           -->
 
         </section>
-        <!-- Bonus --><section>
+        <!-- #58 Bonus --><section>
           <h3>Homework</h3>
-          <h4 class="fragment">Design a ToDo web application. Requirements:</h4>
+          <h4 class="fragment">Design a Presentation Web App</h4>
           <ul>
-            <li class="fragment">User can add an item at an arbitrary place</li>
-            <li class="fragment">User can easily reorder items on the list</li>
+            <li class="fragment">User can add a slide at an arbitrary place</li>
+            <li class="fragment">User can easily reorder slides</li>
             <li class="fragment">All edits are saved "behind the scenes"</li>
-          <h4 class="fragment">You get points for considering:</h4>
+          <h4 class="fragment">Consider:</h4>
             <ul>
               <li class="fragment">Synchronous vs. asynchronous messaging</li>
-              <li class="fragment">Lost item reordering messages</li>
+              <li class="fragment">Lost slide reordering messages</li>
               <li class="fragment">Reordering messages coming out-of-order</li>
               <li class="fragment">User adding, editing and/or reordering on a stale page</li>
             </ul>
           </ul>
         </section>
-        <!-- credits --><section>
+        <!-- #59 credits --><section>
           <h4>Credits</h4>
           <ul class="tiny">
             <li>Hakim El Hattab - Reveal.js, http://lab.hakim.se/reveal-js/#/
@@ -1352,7 +1354,7 @@ config.assets.digest = true
                   <li>http://www.flickr.com/photos/boston_public_library/5786875562/</li>
                   <li>http://www.flickr.com/photos/boston_public_library/5786895180/</li>
                 </ul>
-              <li>ATOMIC Hot Links - http://www.flickr.com/photos/7552532@N07/2488898004/</li>
+              <li>John McNab - http://www.flickr.com/photos/johnmcnab/6511819727/</li>
               <li>Mike Campbell - http://www.flickr.com/photos/morphyoss/4963981594/</li>
               <li>Swansea - http://www.freefoto.com/download/23-22-1/Swansea-London-Paddington-High-Speed-Train--HST-</li>
               <li>http://commons.wikimedia.org/wiki/File:Loket_vid_j%C3%A4rnv%C3%A4gsolyckan_i_Get%C3%A5_1918.jpg</li>
@@ -1363,7 +1365,7 @@ config.assets.digest = true
             </ul>
           </ul>
         </section>
-        <!-- Q & A --><section>
+        <!-- #60 Q & A --><section>
           <h1>Q & A</h1>
           <p class="fragment">You can probably guess my excuse for I pretend not understood you questin me not like!</p>
         </section>

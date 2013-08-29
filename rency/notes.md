@@ -2,24 +2,29 @@ Opening
 
 ----
 
-Concurrency is so mysterious, that most online dictionaries do not even try to define it.
+Concurrency is a strange term. Most dictionaries don't even try to define it.
 
-* Meriam-Webster at least gives you a tip where to look
+* Better ones at least give you a hint
 
-* Wikipedia gives a CS-specific definition:
-  
-  several computations executing simultaneously, and potentially interacting with each other
+Wikipedia has only 2 articles about concurrency -
+
+* Road one
+* and CS, defining concurrency as simultaneous computations that can potentially interact
 
 * If we return back to a dictionary, we can see that all synonyms have a positive tinge,
 and antonyms are pretty negative.
 
-What underlines the mystery of concurrency is that in Software Engineering we gradually
-move the semantics of this word more and more toward its antonyms: when we say "concurrency",
-in a lot of cases we mean concurrency issues or problems.
+Intermission: Everybody is pretty stiff, let move a little. Please raise your right hand. Drop it.
+Raise your left one. Drop it. Raise both. Drop. Feels good? For me too. Now you have no excuse not to raise your hands
+when I ask you :). So let try it:
 
-In this talk I am going to use concurrency almost solely in its inverted (or perverted?) meaning
+* If I add a comment to your code review "You have a concurrency here!", please raise your hand (any, or both) if
+  you will think that I praise you for successfully handling simultaneous computations. And how many of you will
+  think that I am pointing to a bug? What's the matter with you, didn't you see that concurrency is a good word?
 
-But let start first with a short quiz
+I am personally in the second camp, and in this talk I am going to use concurrency almost solely as a bad word
+
+Second exercise:
 
 ----
 
@@ -33,11 +38,11 @@ You are not alone! | You are good, but...
 
 ----
 
-Somebody felt safe with low-traffic single-threaded Rails aopplication
+Somebody felt safe with low-traffic single-threaded Rails application
 
 ----
 
-Let look at where concurrency comes into picture
+Let look at when concurrency may become an issue
 
 ----
 
@@ -58,16 +63,13 @@ We are starting to be exposed to the first aspect of concurrency
   (BTW, in this talk I assume you use classic relational Rails stack.
   If you use NoSQL, you probably just exchange one set of problems to another)
 - and as soon as we start to scale, we have
-
 - the aspect of unpredictable routing
-
   - you never know which host will reply to the request
-
   - or even in what order your hosts will reply
 
 ----
 
-We'll start with looking at Rails-specific concurrency issues (reserving)
+We'll start with looking at concurrency issues specific to Rails
 
 ----
 
@@ -89,15 +91,14 @@ need to handle all shared resources safely ourselves.
 
 - we need to make sure that each of our processes has its own database connection
 (fork creates an exact copy, so without this all processes will try to se the same connection)
-
 - and we need to take care of another shared resource - IO.
 Without this precaution all processes can try to output everything at once,
 and good luck in trying to parse interleaved exception backtraces.
 
 ----
 
-Now we are ready to start digging. Our first facet is One and Only - how can we make sure that no users in our model
-share the same social, or no cars have the same VIN?
+Now we are ready to start digging. Our first facet is One and Only - you do not want users in your model  to
+share the same social, or cars to have the same VIN (unless you are working on a counterfeit application)?
 
 Rails gives us at least two ways to do this.
 
@@ -208,9 +209,11 @@ So our solution becomes not as straight
 
 ----
 
+Here is our MySQL-specific wrapper
 - We have a second rescue block in our method
-- Where we have to looks inside the message to see whether to retry or rethrow the exception
-- Finally we get a hack that works fine on both Postgres and Mysql
+- Where we have to look inside the message to see whether to retry or rethrow the exception (as our statement may
+  really be invalid)
+- Finally we get this working!
 
 ----
 
@@ -224,32 +227,32 @@ The second facet we are going to look at is associated with associations
 
 To look at it let create a very practical and useful example.
 
-- We'll try to build some dogs. (why, or why Rails does not have has_four? Dog having many legs sounds very creepy. But,
-  perhaps, it was a conscious choice…)
-- And we'll have corresponding notion of a head and a leg
+- We'll try to build some dogs. Each of them will have one head and many legs. Sorry, Rails does not have has_four.
+  Perhaps it has some reasons.
+- And we'll have corresponding models for heads and legs
 
 ----
 
-And - let build some dogs.
+And now - let build some dogs.
+
 - At first we'll create 20 dogs (sorry, no heads or legs)
-- We'll find a dog without a head, and mitigate this problem
+- We'll find a dog without a head, and fix this problem
 - We'll do the same to help the dog move around
 
 ----
 
-To verify what we get I used a helper method pretty_report that constructs a string
-of what interesting dogs can we get, and hopefully we can get 20 dogs with 1 head and 
-4 legs each. Let run this test and see what we get
+To verify what we get I used a helper method pretty_report that just constructs a human-readable description, and
+  we compare it with the expected result. What is your guess for how many combinations we will get?
 
-- Ouch… 3 dogs with 1 head and 8 legs, 1 dog with 2 heads and 32 legs, 1 dog with 2 heads and 40 legs…
-
-----
-
-I'd rather have this product of nightmare not survive this rails accident
+- Out of 20 dogs we got only one normal, and 15 different types of monsters.
 
 ----
 
-What heppens with heads?
+If you look carefully, the normal one managed to escape this accident
+
+----
+
+What happens with heads?
 
 - let use our handy inspection tool. We can see here not 1, but 4 problems:
   - First - new head is always added to a dog, By this Rails practically guarantees
@@ -277,45 +280,50 @@ Let look at what happens with legs
 
 ----
 
-that leads us to the same problem with concurrent updates
+that leads us to the similar problem
 
 ----
+
+Simplest way is to use what we already know.
 
 - As we have only one head, we can use the same approach as we used with uniquiness.
-  If we really want, we can reduce legs problem to uniquiness too by associating each leg (e.g. front left, front right,
-  etc.) explicitly. But let try to find more universal approach.
+  If we really want, we can do it for legs too, making our dog have one front left leg, one front right, etc.
 
 ----
+
+But we may want to look at more universal solution. We are going to use database again.
 
 - We will use database-level locking to prevent processes clashing into each other.
-  - for this we will start transaction and lock the record right after finding it.
-- Run your tests and enjoy your life…
-- This time - you enjoy it only with MySQL. Postgres in this case still works fine with legs, but with head it
-  apparently uses its right to return arbitrary record when asked for the first one
+  - for this we will start transaction and lock the record right after finding it. Note that we are locking the
+    "parent" record, even though we are not going to update it.
+- We run our tests and can see that solution works. But we already saw that behavior can be database-specific.
+- This time - you enjoy it only with MySQL. Postgres uses its right to return arbitrary record,
+  and we still have problem with heads.
 
 ----
 
-You see this on Rails before 4.0 (and, hopefully, 3.2.15). Rails 4 finally started to provide default order for .first
+Rails 4 fixed the implicit ordering problem, but for Postgres on with other versions we need to keep looking
 
 ----
 
-- We can try to use a lock together with finding the record we need to change
-- And indeed, we have all our tests succeeding. But at what cost?
-- If we look at our favorite inspection tool
-  - We can see that the whole table is locked!
-  - This happens because model-level lock is applied to the scoped part our   
-    statement. You'll need to train your eye to see where Arel ends and where Array 
-    starts.
+We can do it the hard way
+
+- We will use this lock upfront
+- And indeed, we have all our tests succeeding.
+- But the cost of this may be pretty high:
+  - This is not even table lock, it is a select for update of all records you have
+  - You need to pay attention to how class-level lock works. If you do not have any narrowing or limiting clauses,
+  it will always lock all records.
 
 ----
 
-As we probably do not want to use the table lock sledgehammer, let fix it on
-application level.
-- We are going to do a cleanup **after** update ourselves
-  - For this we will just 'detach' all extra heads and legs at the end
-  - The key part here is that all processes have to agree what 'extra' means.
+As we probably do not want to use this sledgehammer, let fix it ourselves.
+
+- We are going to do a cleanup **after** update
+  - For this we will do decapitation and amputation manually at the end
+  - The key part here is that all processes have to agree what to remove.
     They should not be greedy and try to preserve what they just have added.
-- Tests confirm for us that the cleanup approach succeeds
+- And tests confirm for us that the cleanup approach succeeds
 
 ----
 
@@ -323,39 +331,45 @@ Facet 3: Emigration
 
 ----
 
-When we do our database migrations,  
+When we do our database migrations,
+
 - we are fine with adding tables
-- or columns
-- we are ok with adding or changing indices (with database-specific performance taxes)
+- adding columns and changing indices may cause locking problems (depending on database and how exactly you do it),
+  but at least won't kill you
 - but beware of column deletion.
   - if you are < 4.0
 
 ----
 
-- If we try to remove column on a "hot" website (making sure that nobody uses it)
+If we try to remove (unused!) column while our application is running
+
+- Either with migration or directly from database
 - We will start to see a lot of errors
-  - This column may not be used in your code, but Rails still uses it in a lot of queries.
+  - because Rails still thinks that this column exists.
 
 ----
 
-The worst part is that your application level rescue will prevent your processes from failing completely, so this error
-will be there until your next restart
+The worst part is that Rails will prevent your application from crashing, so this error will be there until your next
+manual restart
 
 ----
 
-- This happens because rails memoizes what columns your tables have, and never tries to refresh this list
-- It will help us to resolve the problem that all operations are using this method
+If we look at what is happening under the hood
+
+- Rails memoizes what columns your tables have, and never tries to refresh them.
+- The good side is that all operations are using this method - so we can 'inject' behavior we need easily
 - And it works for all Rails versions. Almost.
   - Notice the gap.
 
 ----
 
-- For fixing this we need to override this method in a class that have to loose the column, to "hide" such column from
-  the framework
-- Update our application code and restart
-- Now we can safely remove the column,
-- Remove hiding code
-- Do next restart, that may be much later, with some new feature launch.
+For fixing this we need to override this method in a model that have to loose the column
+
+- The model will just pretend that it does not have it
+- After updating your application and restarting
+- We can safely remove the column,
+- And remove this "hiding" code
+- As with any pure cleanup, you are not forced to do deployment immediately
 
 ----
 
@@ -375,7 +389,7 @@ Points 1 and 2 you need to do anyway, let start with 3:
 
 ----
 
-Wow...
+Woof...
 
 ----
 
@@ -384,27 +398,30 @@ Let talk about asset pipeline
 ----
 
 To understand what can go wrong we need to look at how do we deploy our changes to servers.
-One of valid methods of deployment is to 
+One of valid methods of deployment is to
+
 - shut down 
 - all your servers
 - replace your application
 - and start up again
 
-This is a very safe approach, but safety has its cost - and this cost is availability. You just took your site down.
+This is a very safe approach, but safety has its cost - and this cost is availability. You just took your site down
+for unknown time.
 
 ----
 
 If you don't want to give away your availability, you have to go with rolling deployment. The most common way to do this
-is to
+is to:
 
 - deploy your new code to a single host
 - restart the server to pick up changes
 - deploy to the next one…
   
   but here is a problem. Each rails deployment has only one version of assets.
-In this state (before restart) server is still serving red pages, but it already 
-"forgot" about red assets - so clients are getting 404s, and you are getting routing errors. The way to mitigate this
-problem is to use a mix of two strategies.
+
+In this state (before restart) server is still serving red pages, but it already managed to
+"forget" about all red assets - so clients are getting un-styled pages with no javascript.
+The way to mitigate this problem is to use a mix of two strategies.
 
 ----
 
@@ -413,38 +430,43 @@ We are going to
 - shut down the first host
 - update application and start it
   
-  we are fine on this host, but here we have an issue with unpredictable routing.
-Pages served from a red host can try to get assets from a green one, and vice versa.
+We are fine on this host, here is the second problem (with any rolling deployment) - unpredictable routing.
+You never know which host assets for your page are served from.
+Pages served from the red host can try to get assets from the green one, and vice versa.
 
 ----
 
-Fortunately Rails has almost all necessary pieces to avoid this problem, we just need to connect all dots together. 
+Fortunately Rails has almost all necessary pieces to avoid this problem (and give you a lot of additional benefits),
+we just need to connect all dots together.
 
-- We need to enable asset host (and start using it!)
+- We need to move our assets to a CDN
 - If we use S3 for hosting assets, we can use 'asset_sync' gem that integrates asset uploading with asset compilation
 - But in any case making sure all assets are uploaded to an asset host is not a rocket science
-- We need to make sure that old assets are available for a time sufficient to finish deployment to all hosts (or even
+- We have to make sure that old assets are available for a time sufficient to finish deployment to all hosts (or even
   longer, in case you may need to roll back your changes)
 - Just make sure that different versions of assets do not override each other
 
 ----
 
-And we are rolling
+And we are rolling fast
 
 ----
+
+This concludes our Rail-specific part. Remaining question is why resolution of such issues is left to developers?
 
 - Rails goes out of its way to make simple tasks even simpler. It does this by adding a lot of magic tricks that hide
-  what is going behind the curtain.
+  what is going on behind the curtain.
 - Unfortunately such hiding may (and will) strike back when your scenario even slightly deviate from the mainstream.
-  It does not seem that concurrency issues made it to the mainstream yet.
+  (and what is mainstream is defined by rails core team). Looks like concurrency is not considered to
+  be a problem common enough.
 
 ----
 
-And now, finally, we are up to more interesting and not Rails-only stuff. The main difference is that if for
-Rails-specific issues you probably can find more-or-less universal workarounds, wider-scope concurrency problems usually
-do not have a silver bullet solution.
+And now, finally, we are up to more interesting and not Rails-only stuff
 
 ----
+
+The problem we we are going to look at is a problem of incremental functionality change
 
 - Long ago ex - US Secretary of Defence described development and deployment as hardly combinable. Almost 30 years later
 we all moved to this counterproductive environment as our everyday lifestyle. We are constantly developing and deploying
@@ -505,33 +527,33 @@ So, returning to our starting quiz,
 - you should not worry about the concurrency only if you do not care (BTW, "do not care"" is not necessarily negligence.
   Sometimes nature of your application may make you ether safe from such problems, or potential impact of concurrency
   issues is very limited)
-- But if you do, remembering all potential sources of concurrency (shared resources and unpredictable routing, combined
-  with non-atomic deployment process) will help you to find a solution.
+- But if you do, remembering all potential sources of concurrency problems will help you to find a solution.
 
 ----
 
-One way or another....
+One way or another...
 
 ----
 
 This exercise can help you to train your "concurrent" thinking
 
-- Design a ToDo application, where
+- Design an application that can help prepare slides for a talk
   - User can add a ToDo item in arbitrary place
-  - App should support easy reordering of items
-  - Everything is saved implicitly
+  - User can easily move slides (or even move groups of slides) around
+  - There should not be explicit "save"
 - Focus on what is send over the network and what is persisted in your database. You get your points for considering:
-  - Synchronous vs. asynchronous messaging
-  - Some messages about user changing order of ToDo items can be lost
-  - Some messages can come out-of-order
-  - User can have your application opened in a different tabs (or even different computers)
+  - Blocking vs. non-blocking saves
+  - Some messages about user moving slides around can be lost
+  - Or just come out-of-order
+  - User can have your application opened in a different browser tab (or even on different computer) and can not notice
+  that she sees several hours old copy.
 
 Please feel free to use this question on your interviews, or even come with prepared answer to mine.
 
 ----
 
-Credits
+I'd like to (and in some cases have to) thank everybody who made this presentation possible
 
 ----
 
-Q&A
+And now we are ready for Q&A session.
