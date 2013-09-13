@@ -2,32 +2,6 @@ Opening
 
 ----
 
-Concurrency is a strange term. Most dictionaries don't even try to define it.
-
-* Better ones at least give you a hint
-
-Wikipedia has only 2 articles about concurrency -
-
-* Road one
-* and CS, defining concurrency as simultaneous computations that can potentially interact
-
-* If we return back to a dictionary, we can see that all synonyms have a positive tinge,
-and antonyms are pretty negative.
-
-Intermission: Everybody is pretty stiff, let move a little. Please raise your right hand. Drop it.
-Raise your left one. Drop it. Raise both. Drop. Feels good? For me too. Now you have no excuse not to raise your hands
-when I ask you :). So let try it:
-
-* If I add a comment to your code review "You have a concurrency here!", please raise your hand (any, or both) if
-  you will think that I praise you for successfully handling simultaneous computations. And how many of you will
-  think that I am pointing to a bug? What's the matter with you, didn't you see that concurrency is a good word?
-
-I am personally in the second camp, and in this talk I am going to use concurrency almost solely as a bad word
-
-Second exercise:
-
-----
-
 Please raise your hand if you agree that you should not care about concurrency if
 
 * you use rails?
@@ -123,7 +97,7 @@ with number of unique values
 
 ----
 
-We got a some crooked rails!
+so - you have to change your code first to avoid such problems
 
 ----
 
@@ -144,10 +118,6 @@ if they come together?
 
 ----
 
-and we get what we get!
-
-----
-
 The second tool Rails gives us - uniquiness validation
 
 - We'll use another model that validates the value for uniquiness
@@ -158,12 +128,7 @@ The second tool Rails gives us - uniquiness validation
 
 ----
 
-Oops.
- 
-  BTW, do not use first_or_create and validate uniquiness together. What you get
-in this case is that for each record not found by first_or_create,
-uniquiness validation will check again - and you have 2 database queries for the price
-of non-working one.
+and we get what we get!
 
 ----
 
@@ -181,7 +146,7 @@ helper method.
 
 ----
 
-so - you have to change your code first to avoid such problems
+We need to solve this problem ourselves...
 
 ----
 
@@ -205,7 +170,7 @@ Let run the test and make sure that everything is fine.
 
 ----
 
-So our solution becomes not as straight
+We thought we straightened everything up, but..
 
 ----
 
@@ -306,14 +271,7 @@ Rails 4 fixed the implicit ordering problem, but for Postgres on with other vers
 
 ----
 
-We can do it the hard way
 
-- We will use this lock upfront
-- And indeed, we have all our tests succeeding.
-- But the cost of this may be pretty high:
-  - This is not even table lock, it is a select for update of all records you have
-  - You need to pay attention to how class-level lock works. If you do not have any narrowing or limiting clauses,
-  it will always lock all records.
 
 ----
 
@@ -502,10 +460,6 @@ until I route it to you!
 
 ----
 
-Server down....
-
-----
-
 Now let fix this issue
 
 - Server One, your API does not change, but I am giving yo a candy to put in your right pocket
@@ -547,6 +501,7 @@ This exercise can help you to train your "concurrent" thinking
   - Or just come out-of-order
   - User can have your application opened in a different browser tab (or even on different computer) and can not notice
   that she sees several hours old copy.
+  - Extra bonus - collaborative editing
 
 Please feel free to use this question on your interviews, or even come with prepared answer to mine.
 
