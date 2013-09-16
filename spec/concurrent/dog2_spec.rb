@@ -10,12 +10,12 @@ describe Dog do
 
   it 'dog should be normal' do
     50.times{ Dog.create }
-    concurrently do
+    concurrently 20 do
       begin
         headless = Dog.includes(:head).where(heads: {dog_id: nil}).first
         headless && Dog.transaction do
           headless.lock!
-          headless.create_head
+          headless.head = Head.create
         end
         legless = Dog.includes(:legs).where(legs: {dog_id: nil}).first
         legless && Dog.transaction do
