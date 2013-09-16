@@ -6,9 +6,9 @@ describe MysqlSafeNumber do
   end
 
   it 'should have unique values for find_or_create' do
-    concurrently 20 do
+    concurrently do
       50.times do 
-        raise "Invalid record" if MysqlSafeNumber.find_or_create(MysqlSafeNumber.count).new_record?
+        MysqlSafeNumber.first_or_create_where(value: MysqlSafeNumber.count)
       end
     end
     MysqlSafeNumber.count.must_equal MysqlSafeNumber.select('distinct value').count

@@ -9,46 +9,31 @@ describe Dog do
   end
 
   it 'dog should be normal' do
-    200.times{ Dog.create }
-    concurrently 20 do
+    50.times{ Dog.create }
+    concurrently do
       begin
         headless = Dog.includes(:head).reject(&:head).first
         if headless
           headless.create_head
-          Head.update_all( {
-              :dog_id => nil 
-            }, {
-              :id => Head.
-                where(:dog_id => headless.id).
-                order(:id).
-                pluck(:id)[0..-2],
-              :dog_id => headless.id
-            })
+          Head.update_all({ dog_id: nil },
+            { id: Head.where(dog_id: headless.id).order(:id).pluck(:id)[0..-2] })
         end
-
         legless = Dog.includes(:legs).select{|d| d.legs.empty?}.first
         if legless
           legless.legs = 4.times.map{ Leg.create }
-          Leg.update_all( {
-              :dog_id => nil
-            }, {
-              :id => Leg.
-                where(:dog_id => legless.id).
-                order(:id).
-                pluck(:id)[0..-5],
-              :dog_id => legless.id
-            })          
+          Leg.update_all({ dog_id: nil },
+            { id: Leg.where(dog_id: legless.id).order(:id).pluck(:id)[0..-5] })
         end
       end while headless || legless
     end
 
-    Dog.all.group_by{ |dog| [ Head.where(:dog_id => dog.id).count, dog.legs.count ] }.
+    Dog.all.group_by{ |dog| [ Head.where(dog_id: dog.id).count, dog.legs.count ] }.
         map{ |k, v| [k[0], k[1], v.size] }.
         sort_by(&:last).
         reverse.
         map{ |(heads, legs, count)| "#{pz(count, 'dog')} with #{pz(heads, 'head')} and #{pz(legs, 'leg')}"}.
         join(', ').
-        must_equal "200 dogs with 1 head and 4 legs"
+        must_equal "50 dogs with 1 head and 4 legs"
   end
 
   def pz(n, str)

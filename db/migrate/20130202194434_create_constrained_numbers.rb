@@ -3,6 +3,6 @@ class CreateConstrainedNumbers < ActiveRecord::Migration
     create_table :constrained_numbers do |t|
       t.integer :value
     end
-    add_index :constrained_numbers, :value, :unique => true
+    add_index :constrained_numbers, :value, unique: true
   end
 end

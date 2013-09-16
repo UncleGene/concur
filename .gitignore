@@ -7,6 +7,7 @@
 rency
 Gemfile.lock
 db/schema.rb
+.DS_Store
 
 # Ignore bundler config
 .bundle
@@ -14,7 +15,6 @@ db/schema.rb
 # Ignore all logfiles and tempfiles.
 *.log
 tmp
-
 .ruby-version
 .ruby-gemset
 .rvmrc

@@ -1,8 +1,0 @@
-<h1>Your Votes Count!</h1>
-
-<p>You are now registered to see votes on item <%= session[:nid] %></p>
-<p>We saw <%= pluralize(@number.value, 'vote') %></p>
-
-<%= form_tag '/number/vote', :method => :put do %>
-  <%= button_tag 'Submit your vote' %>
-<% end %>
