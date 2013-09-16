@@ -4,18 +4,19 @@
 # or operating system, you probably want to add a global ignore instead:
 #   git config --global core.excludesfile ~/.gitignore_global
 
+rency
 Gemfile.lock
-/db/schema.rb
+db/schema.rb
 
 # Ignore bundler config
-/.bundle
+.bundle
 
 # Ignore all logfiles and tempfiles.
-/log/*.log
-/tmp
+*.log
+tmp
 
-/.ruby-version
-/.ruby-gemset
-/.rvmrc
-/.idea
-/.DS_Store
+.ruby-version
+.ruby-gemset
+.rvmrc
+.idea
+.DS_Store
