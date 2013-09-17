@@ -8,11 +8,20 @@ Please raise your hand if you agree that you should not care about concurrency i
 * you use rails and ypu do not use multi-threading?
 * rails, single thread, and low traffic?
 
-You are not alone! | You are good, but...
+Do you actively take precautions against concurrency issues?
 
 ----
 
-Somebody felt safe with low-traffic single-threaded Rails application
+Here is an example. This is Seattle Monorail. Mono means single - 
+you can see this as a single-threaded Rails application.
+And it is pretty low-traffic - two processes (trains) were enough. 
+
+----
+
+And everything can run fine for a long time - until it is not. 
+Such applications are still subject to concurrency problems, and 
+sometimes pretty bad one. Now in Seattle we are using a single process
+to avoid concurrency issues.
 
 ----
 
