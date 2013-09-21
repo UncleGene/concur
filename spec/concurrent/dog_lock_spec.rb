@@ -6,18 +6,22 @@ describe Dog do
   end
 
   it 'dog should be normal' do
-    20.times{ Dog.create }
-    concurrently do
+    50.times{ Dog.create }
+    concurrently 20 do
       begin
         headless = Dog.includes(:head).where(heads: {dog_id: nil}).first
-        headless && headless.create_head
-
+        headless && Dog.transaction do
+          headless.lock!
+          headless.create_head
+        end
         legless = Dog.includes(:legs).where(legs: {dog_id: nil}).first
-        legless && legless.legs = 4.times.map{ Leg.create }
+        legless && Dog.transaction do
+          legless.lock!
+          legless.legs = 4.times.map{ Leg.create }
+        end
       end while headless || legless
     end
 
-    Dog.all_str.must_equal "20 dogs with 1 head and 4 legs"
+    Dog.all_str.must_equal "50 dogs with 1 head and 4 legs"
   end
-
 end
